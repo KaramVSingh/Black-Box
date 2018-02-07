@@ -74,7 +74,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QWidget" name="field" native="true">
+       <widget class="Field" name="field" native="true">
         <property name="sizePolicy">
          <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
           <horstretch>0</horstretch>
@@ -118,6 +118,12 @@
      <height>17</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+   </widget>
+   <addaction name="menuFile"/>
   </widget>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
@@ -126,6 +132,12 @@
    <class>SideSelectionPane</class>
    <extends>QWidget</extends>
    <header>sideselectionpane.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>Field</class>
+   <extends>QWidget</extends>
+   <header>field.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>

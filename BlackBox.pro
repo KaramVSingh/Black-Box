@@ -29,14 +29,19 @@ SOURCES += \
     sideselectionpane.cpp \
     field.cpp \
     topselectionpane.cpp \
-    bottomselectionpane.cpp
+    bottomselectionpane.cpp \
+    gate.cpp \
+    and.cpp
 
 HEADERS += \
         mainwindow.h \
     sideselectionpane.h \
     field.h \
     topselectionpane.h \
-    bottomselectionpane.h
+    bottomselectionpane.h \
+    gate.h \
+    detail.h \
+    and.h
 
 FORMS += \
         mainwindow.ui \
