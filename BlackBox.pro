@@ -25,10 +25,22 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
         main.cpp \
-        mainwindow.cpp
+        mainwindow.cpp \
+    sideselectionpane.cpp \
+    field.cpp \
+    topselectionpane.cpp \
+    bottomselectionpane.cpp
 
 HEADERS += \
-        mainwindow.h
+        mainwindow.h \
+    sideselectionpane.h \
+    field.h \
+    topselectionpane.h \
+    bottomselectionpane.h
 
 FORMS += \
-        mainwindow.ui
+        mainwindow.ui \
+    sideselectionpane.ui \
+    field.ui \
+    topselectionpane.ui \
+    bottomselectionpane.ui
