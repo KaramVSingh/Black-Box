@@ -17,7 +17,8 @@ enum class GateType {
 enum class Mode {
     place,
     zoomIn,
-    zoomOut
+    zoomOut,
+    move
 };
 
 #endif // DETAIL_H

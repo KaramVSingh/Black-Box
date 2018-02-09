@@ -62,6 +62,8 @@ void Field::mousePressEvent(QMouseEvent *e)
 void Field::mouseMoveEvent(QMouseEvent *e)
 {
     QPoint fieldPoint = getFieldLocation(QPoint(e->x(), e->y()));
+    int windowWidth = this->width() / GRID_DENSITY * GRID_DENSITY;
+    int windowHeight = this ->height() / GRID_DENSITY * GRID_DENSITY;
 
     if(!dragging) {
 
@@ -74,6 +76,14 @@ void Field::mouseMoveEvent(QMouseEvent *e)
 void Field::mouseReleaseEvent(QMouseEvent *e)
 {
     dragging = false;
+    QPoint fieldPoint = getFieldLocation(QPoint(e->x(), e->y()));
+
+    switch(tool) {
+    case Mode::move:
+        topLeftLocation += startLocation - fieldPoint;
+        break;
+    }
+    update();
 }
 
 // paintEvent should draw all gates and wires in the right location with the right zoom

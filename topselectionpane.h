@@ -26,6 +26,8 @@ private slots:
 
     void on_zoomOutButton_clicked();
 
+    void on_moveButton_clicked();
+
 signals:
     void toolChanged(Mode newTool, QString data);
 

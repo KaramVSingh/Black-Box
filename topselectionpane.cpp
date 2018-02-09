@@ -38,3 +38,8 @@ void TopSelectionPane::on_zoomOutButton_clicked()
 {
     emit toolChanged(Mode::zoomOut, "");
 }
+
+void TopSelectionPane::on_moveButton_clicked()
+{
+    emit toolChanged(Mode::move, "");
+}
