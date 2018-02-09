@@ -3,7 +3,7 @@
 
 #define GRID_DENSITY 16
 
-enum class gateType {
+enum class GateType {
     AND,
     OR,
     NOT,
@@ -14,7 +14,7 @@ enum class gateType {
     CUSTOM
 };
 
-enum class mode {
+enum class Mode {
     place,
     zoomIn,
     zoomOut

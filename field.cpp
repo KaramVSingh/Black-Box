@@ -6,7 +6,7 @@ Field::Field(QWidget *parent) :
     ui(new Ui::Field)
 {
     zoom = 1;
-    tool = mode::place;
+    tool = Mode::place;
     dragging = false;
     setMouseTracking(true);
     ui->setupUi(this);
@@ -25,23 +25,33 @@ void Field::mousePressEvent(QMouseEvent *e)
     dragging = true;
     // location will be in terms of the field, not the contents of the field
     QPoint fieldPoint = getFieldLocation(QPoint(e->x(), e->y()));
-
     startLocation = fieldPoint;
 
     switch(tool) {
-    case mode::place:
-        gates.append(new And(fieldPoint));
-        tool = mode::zoomIn;
+    case Mode::place:
+        placeGate(fieldPoint);
         break;
-    case mode::zoomIn:
+    case Mode::zoomIn:
         if(zoom < 2) {
             zoom *= 2;
-            // we also need to change the topLeftLocation
-            int windowWidth = this->width() / 16 * 16;
-            int windowHeight = this ->height() / 16 * 16;
+            // we also need to change the topLeftLocation. we want to have the width and
+            // the height in terms of the new grid density. if we zoom in it is 32px
+            int windowWidth = this->width() / GRID_DENSITY * GRID_DENSITY;
+            int windowHeight = this ->height() / GRID_DENSITY * GRID_DENSITY;
 
-            topLeftLocation.setX(fieldPoint.x() - windowWidth / 2 / zoom);
-            topLeftLocation.setY(fieldPoint.y() - windowHeight / 2 / zoom);
+            topLeftLocation.setX(fieldPoint.x() - (int)(windowWidth / 2 / zoom) / GRID_DENSITY * GRID_DENSITY);
+            topLeftLocation.setY(fieldPoint.y() - (int)(windowHeight / 2 / zoom) / GRID_DENSITY * GRID_DENSITY);
+        }
+        break;
+    case Mode::zoomOut:
+        if(zoom > 0.5) {
+            zoom /= 2;
+            // we also need to change the topLeftLocation
+            int windowWidth = this->width() / GRID_DENSITY * GRID_DENSITY;
+            int windowHeight = this ->height() / GRID_DENSITY * GRID_DENSITY;
+
+            topLeftLocation.setX(fieldPoint.x() - (int)(windowWidth / 2 / zoom) / GRID_DENSITY * GRID_DENSITY);
+            topLeftLocation.setY(fieldPoint.y() - (int)(windowHeight / 2 / zoom) / GRID_DENSITY * GRID_DENSITY);
         }
         break;
     }
@@ -54,6 +64,8 @@ void Field::mouseMoveEvent(QMouseEvent *e)
     QPoint fieldPoint = getFieldLocation(QPoint(e->x(), e->y()));
 
     if(!dragging) {
+
+    } else {
 
     }
     update();
@@ -82,22 +94,37 @@ void Field::paintEvent(QPaintEvent *e)
 QPoint Field::getFieldLocation(QPoint guiLocation)
 {
     // now we need to find the point that represents the location on the field
-    QPoint fieldLocation(topLeftLocation + guiLocation);
-    fieldLocation.setX(fieldLocation.x() / zoom);
-    fieldLocation.setY(fieldLocation.y() / zoom);
+    QPoint fieldLocation(guiLocation);
+    fieldLocation.setX((int)(fieldLocation.x() / zoom));
+    fieldLocation.setY((int)(fieldLocation.y() / zoom));
 
     // we want to place it on the grid:
-    if(fieldLocation.x() % GRID_DENSITY < GRID_DENSITY / 2 * zoom) {
-        fieldLocation.setX(fieldLocation.x() - fieldLocation.x() % GRID_DENSITY * zoom);
+    if(fieldLocation.x() % (int)(GRID_DENSITY) < (int)(GRID_DENSITY / 2)) {
+        fieldLocation.setX(fieldLocation.x() - fieldLocation.x() % (int)(GRID_DENSITY));
     } else {
-        fieldLocation.setX(fieldLocation.x() + GRID_DENSITY * zoom - fieldLocation.x() % GRID_DENSITY * zoom);
+        fieldLocation.setX((int)(fieldLocation.x() + (int)(GRID_DENSITY) - fieldLocation.x() % (int)(GRID_DENSITY)));
     }
 
-    if(fieldLocation.y() % GRID_DENSITY < GRID_DENSITY / 2 * zoom) {
-        fieldLocation.setY(fieldLocation.y() - fieldLocation.y() % GRID_DENSITY * zoom);
+    if(fieldLocation.y() % (int)(GRID_DENSITY) < (int)(GRID_DENSITY / 2)) {
+        fieldLocation.setY(fieldLocation.y() - fieldLocation.y() % (int)(GRID_DENSITY));
     } else {
-        fieldLocation.setY(fieldLocation.y() + GRID_DENSITY * zoom - fieldLocation.y() % GRID_DENSITY * zoom);
+        fieldLocation.setY((int)(fieldLocation.y() + (int)(GRID_DENSITY) - fieldLocation.y() % (int)(GRID_DENSITY)));
     }
+
+    fieldLocation += topLeftLocation;
 
     return fieldLocation;
+}
+
+void Field::placeGate(QPoint location)
+{
+    if(toolData == "AND") {
+        gates.append(new And(location));
+    }
+}
+
+void Field::changeTool(Mode newTool, QString data)
+{
+    tool = newTool;
+    toolData = data;
 }

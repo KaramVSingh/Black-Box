@@ -28,3 +28,13 @@ void TopSelectionPane::paintEvent(QPaintEvent *e)
     paint.fillRect(0, 0, this->width(), this->height(), QColor(70, 70, 70));
     paint.drawRect(-4, 0, this->width() + 4, this->height());
 }
+
+void TopSelectionPane::on_zoomInButton_clicked()
+{
+    emit toolChanged(Mode::zoomIn, "");
+}
+
+void TopSelectionPane::on_zoomOutButton_clicked()
+{
+    emit toolChanged(Mode::zoomOut, "");
+}

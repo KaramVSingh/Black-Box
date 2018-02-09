@@ -6,6 +6,7 @@
 #include <QPaintEvent>
 #include <QMouseEvent>
 #include <QPoint>
+#include <QRect>
 
 #include "detail.h"
 #include "gate.h"
@@ -24,6 +25,9 @@ public:
     ~Field();
     QPoint topLeftLocation;
 
+public slots:
+    void changeTool(Mode newTool, QString data);
+
 private:
     Ui::Field *ui;
     void paintEvent(QPaintEvent *e);
@@ -31,12 +35,15 @@ private:
     void mouseMoveEvent(QMouseEvent *e);
     void mouseReleaseEvent(QMouseEvent *e);
     QPoint getFieldLocation(QPoint guiLocation);
+    void placeGate(QPoint location);
 
     QVector<Gate*> gates;
     QPoint startLocation;
-    int zoom;
+    float zoom;
     bool dragging;
-    mode tool;
+    Mode tool;
+    QString toolData;
+
 
 };
 

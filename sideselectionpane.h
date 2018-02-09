@@ -7,6 +7,8 @@
 #include <QColor>
 #include <QPen>
 
+#include "detail.h"
+
 namespace Ui {
 class SideSelectionPane;
 }
@@ -18,6 +20,12 @@ class SideSelectionPane : public QWidget
 public:
     explicit SideSelectionPane(QWidget *parent = 0);
     ~SideSelectionPane();
+
+signals:
+    void toolChanged(Mode, QString);
+
+private slots:
+    void on_comboBox_activated(const QString &arg1);
 
 private:
     Ui::SideSelectionPane *ui;

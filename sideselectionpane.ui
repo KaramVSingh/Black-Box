@@ -41,6 +41,9 @@
    <property name="bottomMargin">
     <number>0</number>
    </property>
+   <item>
+    <widget class="QComboBox" name="comboBox"/>
+   </item>
   </layout>
  </widget>
  <resources/>

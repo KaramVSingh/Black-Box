@@ -22,7 +22,7 @@ public:
     virtual QVector<QPoint> getInputLocations(float zoom) {}
     virtual QVector<QPoint> getOutputLocations(float zoom) {}
     virtual void changeValue() {}
-    virtual gateType toType() {}
+    virtual GateType toType() {}
 
     // this struct will be used to describe a connection to a gate's index
     struct Connection {

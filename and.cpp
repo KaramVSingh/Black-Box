@@ -102,7 +102,7 @@ QVector<QPoint> And::getOutputLocations(float zoom)
 }
 
 // this will be use to identify what type of gate this is in vectors of gates
-gateType And::toType()
+GateType And::toType()
 {
-    return gateType::AND;
+    return GateType::AND;
 }

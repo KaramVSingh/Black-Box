@@ -7,6 +7,9 @@ SideSelectionPane::SideSelectionPane(QWidget *parent) :
 {
     setMouseTracking(true);
     ui->setupUi(this);
+
+    // add all of the gates
+    ui->comboBox->addItem("AND");
 }
 
 SideSelectionPane::~SideSelectionPane()
@@ -27,4 +30,9 @@ void SideSelectionPane::paintEvent(QPaintEvent *e)
     // draw the dark rectangle background of the pane
     paint.fillRect(0, 0, this->width(), this->height(), QColor(70, 70, 70));
     paint.drawRect(0, 0, this->width(), this->height());
+}
+
+void SideSelectionPane::on_comboBox_activated(const QString &arg1)
+{
+    emit toolChanged(Mode::place, arg1);
 }

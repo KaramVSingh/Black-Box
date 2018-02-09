@@ -15,7 +15,7 @@ public:
     QVector<QPoint> getInputLocations(float zoom);
     QVector<QPoint> getOutputLocations(float zoom);
     void changeValue() {}
-    gateType toType();
+    GateType toType();
 };
 
 #endif // AND_H
