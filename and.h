@@ -12,8 +12,8 @@ public:
     bool addOutput(Gate* newGate, int thisIndex, int otherIndex);
     void changeLocation(QPoint newLocation);
     QImage toImage(float zoom);
-    QVector<QPoint> getInputLocations(float zoom);
-    QVector<QPoint> getOutputLocations(float zoom);
+    QVector<QPoint> getInputLocations();
+    QVector<QPoint> getOutputLocations();
     void changeValue() {}
     GateType toType();
 };

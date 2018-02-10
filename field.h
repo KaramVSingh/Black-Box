@@ -9,6 +9,7 @@
 #include <QRect>
 
 #include "detail.h"
+#include "wire.h"
 #include "gate.h"
 #include "and.h"
 
@@ -36,11 +37,14 @@ private:
     void mouseReleaseEvent(QMouseEvent *e);
     QPoint getFieldLocation(QPoint guiLocation);
     void placeGate(QPoint location);
+    void drawWire(QPoint point);
 
     QVector<Gate*> gates;
+    QVector<Wire*> wires;
     QPoint startLocation;
     float zoom;
     bool dragging;
+    bool drawingWire;
     Mode tool;
     QString toolData;
 

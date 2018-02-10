@@ -44,6 +44,13 @@
    <item>
     <widget class="QComboBox" name="comboBox"/>
    </item>
+   <item>
+    <widget class="QPushButton" name="wireButton">
+     <property name="text">
+      <string>Draw Wire</string>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
  <resources/>

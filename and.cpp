@@ -47,17 +47,14 @@ bool And::addInput(Gate* newGate, int thisIndex, int otherIndex)
 // this function returns false if unable to add the output and manages the outputs
 bool And::addOutput(Gate* newGate, int thisIndex, int otherIndex)
 {
-    if(takenOutputs.contains(thisIndex)) {
-        // in this case the new gate is being connected to an existing output
-        qDebug() << "AND Gate adding to taken output index";
-        return false;
-    }
-
     if(thisIndex >= numberOfOutputLines) {
         // this means its an invalid index
         qDebug() << "AND Gate adding to illegal output index";
         return false;
     }
+
+    // we dont care if taken outputs containts this becasue a single gate can have multiple
+    // gates connected to a single output port
 
     takenOutputs.append(thisIndex);
     Connection newConnection;
@@ -83,21 +80,20 @@ QImage And::toImage(float zoom)
 }
 
 // this function returns the locations of the input locations properly zoomed
-QVector<QPoint> And::getInputLocations(float zoom)
+QVector<QPoint> And::getInputLocations()
 {
     // first input should be 16 points down and the second should be 48 (not accounting for zoom)
     QVector<QPoint> inputLocations;
-    inputLocations.append(location + QPoint(0, (int)(GRID_DENSITY * zoom)));
-    inputLocations.append(location + QPoint(0, (int)(3 * GRID_DENSITY * zoom)));
+    inputLocations.append(location + QPoint(0, (int)(GRID_DENSITY)));
+    inputLocations.append(location + QPoint(0, (int)(3 * GRID_DENSITY)));
     return inputLocations;
 }
 
 // this function returns the locations of the output locations properly zoomed
-QVector<QPoint> And::getOutputLocations(float zoom)
+QVector<QPoint> And::getOutputLocations()
 {
     QVector<QPoint> outputLocations;
-    outputLocations.append(location + QPoint((int)(4 * GRID_DENSITY * zoom), (int)(GRID_DENSITY * zoom)));
-    outputLocations.append(location + QPoint((int)(4 * GRID_DENSITY * zoom), (int)(3 * GRID_DENSITY * zoom)));
+    outputLocations.append(location + QPoint((int)(4 * GRID_DENSITY), (int)(2 * GRID_DENSITY)));
     return outputLocations;
 }
 

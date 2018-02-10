@@ -36,3 +36,8 @@ void SideSelectionPane::on_comboBox_activated(const QString &arg1)
 {
     emit toolChanged(Mode::place, arg1);
 }
+
+void SideSelectionPane::on_wireButton_clicked()
+{
+    emit toolChanged(Mode::wire, "");
+}

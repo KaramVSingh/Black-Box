@@ -31,7 +31,8 @@ SOURCES += \
     topselectionpane.cpp \
     bottomselectionpane.cpp \
     gate.cpp \
-    and.cpp
+    and.cpp \
+    wire.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -41,7 +42,8 @@ HEADERS += \
     bottomselectionpane.h \
     gate.h \
     detail.h \
-    and.h
+    and.h \
+    wire.h
 
 FORMS += \
         mainwindow.ui \

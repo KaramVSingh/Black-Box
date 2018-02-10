@@ -27,6 +27,8 @@ signals:
 private slots:
     void on_comboBox_activated(const QString &arg1);
 
+    void on_wireButton_clicked();
+
 private:
     Ui::SideSelectionPane *ui;
     void paintEvent(QPaintEvent *e);

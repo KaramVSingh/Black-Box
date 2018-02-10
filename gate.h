@@ -19,8 +19,8 @@ public:
     virtual int execute(int index) {}
     virtual bool addInput(Gate* newGate, int thisIndex, int otherIndex) {}
     virtual bool addOutput(Gate* newGate, int thisIndex, int otherIndex) {}
-    virtual QVector<QPoint> getInputLocations(float zoom) {}
-    virtual QVector<QPoint> getOutputLocations(float zoom) {}
+    virtual QVector<QPoint> getInputLocations() {}
+    virtual QVector<QPoint> getOutputLocations() {}
     virtual void changeValue() {}
     virtual GateType toType() {}
 

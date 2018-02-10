@@ -18,7 +18,8 @@ enum class Mode {
     place,
     zoomIn,
     zoomOut,
-    move
+    move,
+    wire
 };
 
 #endif // DETAIL_H
