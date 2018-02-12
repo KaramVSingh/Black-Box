@@ -149,6 +149,8 @@ void Field::placeGate(QPoint location)
         gates.append(new Not(location));
     } else if(toolData == "OR") {
         gates.append(new Or(location));
+    } else if(toolData == "INPUT") {
+        gates.append(new Input(location));
     }
 }
 

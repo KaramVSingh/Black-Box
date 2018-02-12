@@ -1,7 +1,7 @@
 #ifndef WIRE_H
 #define WIRE_H
 
-#include "gate.h"
+#include "gates/gate.h"
 #include "detail.h"
 
 class Wire

@@ -6,6 +6,8 @@
 #include <QPixmap>
 #include <QFileInfo>
 #include <QDebug>
+#include <QPainter>
+#include <QPen>
 
 #include "detail.h"
 

@@ -11,10 +11,11 @@
 #include "detail.h"
 #include "wire.h"
 
-#include "gate.h"
+#include "gates/gate.h"
 #include "gates/and.h"
 #include "gates/not.h"
 #include "gates/or.h"
+#include "gates/input.h"
 
 namespace Ui {
 class Field;
