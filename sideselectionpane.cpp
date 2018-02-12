@@ -10,6 +10,8 @@ SideSelectionPane::SideSelectionPane(QWidget *parent) :
 
     // add all of the gates
     ui->comboBox->addItem("AND");
+    ui->comboBox->addItem("OR");
+    ui->comboBox->addItem("NOT");
 }
 
 SideSelectionPane::~SideSelectionPane()

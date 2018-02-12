@@ -145,6 +145,10 @@ void Field::placeGate(QPoint location)
 {
     if(toolData == "AND") {
         gates.append(new And(location));
+    } else if(toolData == "NOT") {
+        gates.append(new Not(location));
+    } else if(toolData == "OR") {
+        gates.append(new Or(location));
     }
 }
 
@@ -156,7 +160,6 @@ void Field::changeTool(Mode newTool, QString data)
 
 void Field::drawWire(QPoint point)
 {
-    qDebug() << "drawingWire:" << drawingWire;
     // first thing you want to do is establish if this wire is the start of a new wire or the
     // continuation of an old one
 

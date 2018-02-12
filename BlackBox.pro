@@ -30,9 +30,11 @@ SOURCES += \
     field.cpp \
     topselectionpane.cpp \
     bottomselectionpane.cpp \
-    gate.cpp \
-    and.cpp \
-    wire.cpp
+    wire.cpp \
+    gates/not.cpp \
+    gates/and.cpp \
+    gates/or.cpp \
+    gates/gate.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -40,10 +42,12 @@ HEADERS += \
     field.h \
     topselectionpane.h \
     bottomselectionpane.h \
-    gate.h \
     detail.h \
-    and.h \
-    wire.h
+    wire.h \
+    gates/not.h \
+    gates/and.h \
+    gates/or.h \
+    gates/gate.h
 
 FORMS += \
         mainwindow.ui \
