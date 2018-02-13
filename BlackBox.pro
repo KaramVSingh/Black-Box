@@ -35,7 +35,8 @@ SOURCES += \
     gates/and.cpp \
     gates/or.cpp \
     gates/gate.cpp \
-    gates/input.cpp
+    gates/input.cpp \
+    gates/output.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -49,7 +50,8 @@ HEADERS += \
     gates/and.h \
     gates/or.h \
     gates/gate.h \
-    gates/input.h
+    gates/input.h \
+    gates/output.h
 
 FORMS += \
         mainwindow.ui \

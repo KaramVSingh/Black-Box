@@ -29,6 +29,8 @@ private slots:
 
     void on_wireButton_clicked();
 
+    void on_interactButton_clicked();
+
 private:
     Ui::SideSelectionPane *ui;
     void paintEvent(QPaintEvent *e);

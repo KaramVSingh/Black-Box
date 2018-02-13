@@ -13,6 +13,7 @@ SideSelectionPane::SideSelectionPane(QWidget *parent) :
     ui->comboBox->addItem("OR");
     ui->comboBox->addItem("NOT");
     ui->comboBox->addItem("INPUT");
+    ui->comboBox->addItem("OUTPUT");
 }
 
 SideSelectionPane::~SideSelectionPane()
@@ -43,4 +44,9 @@ void SideSelectionPane::on_comboBox_activated(const QString &arg1)
 void SideSelectionPane::on_wireButton_clicked()
 {
     emit toolChanged(Mode::wire, "");
+}
+
+void SideSelectionPane::on_interactButton_clicked()
+{
+    emit toolChanged(Mode::interact, "");
 }

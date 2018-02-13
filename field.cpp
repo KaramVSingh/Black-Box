@@ -58,6 +58,8 @@ void Field::mousePressEvent(QMouseEvent *e)
     case Mode::wire:
         drawWire(fieldPoint);
         break;
+    case Mode::interact:
+        toggleInputs(fieldPoint);
     }
 
     update();
@@ -150,7 +152,13 @@ void Field::placeGate(QPoint location)
     } else if(toolData == "OR") {
         gates.append(new Or(location));
     } else if(toolData == "INPUT") {
-        gates.append(new Input(location));
+        Input* newInput = new Input(location);
+        gates.append(newInput);
+        inputGates.append(newInput);
+    } else if(toolData == "OUTPUT") {
+        Output* newOutput = new Output(location);
+        gates.append(newOutput);
+        outputGates.append(newOutput);
     }
 }
 
@@ -339,6 +347,22 @@ void Field::drawWire(QPoint point)
                 newWire->addInputConnection(wires[i]->input.gate, wires[i]->input.otherIndex);
                 return;
             }
+        }
+    }
+}
+
+void Field::toggleInputs(QPoint point)
+{
+    for(int i = 0; i < inputGates.size(); i++) {
+        if(point == inputGates[i]->location + QPoint(GRID_DENSITY, GRID_DENSITY)) {
+            // then we say you have pressed on the input:
+            inputGates[i]->changeValue();
+
+            for(int j = 0; j < outputGates.size(); j++) {
+                outputGates[j]->execute(0);
+            }
+
+            return;
         }
     }
 }

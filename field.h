@@ -16,6 +16,7 @@
 #include "gates/not.h"
 #include "gates/or.h"
 #include "gates/input.h"
+#include "gates/output.h"
 
 namespace Ui {
 class Field;
@@ -42,8 +43,11 @@ private:
     QPoint getFieldLocation(QPoint guiLocation);
     void placeGate(QPoint location);
     void drawWire(QPoint point);
+    void toggleInputs(QPoint point);
 
     QVector<Gate*> gates;
+    QVector<Input*> inputGates;
+    QVector<Output*> outputGates;
     QVector<Wire*> wires;
     QPoint startLocation;
     float zoom;
