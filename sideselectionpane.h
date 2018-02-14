@@ -31,6 +31,8 @@ private slots:
 
     void on_interactButton_clicked();
 
+    void on_decoderBits_returnPressed();
+
 private:
     Ui::SideSelectionPane *ui;
     void paintEvent(QPaintEvent *e);

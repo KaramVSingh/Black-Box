@@ -161,6 +161,7 @@ QPoint Field::getFieldLocation(QPoint guiLocation)
 
 void Field::placeGate(QPoint location)
 {
+    qDebug() << toolData;
     if(toolData == "AND") {
         gates.append(new And(location));
     } else if(toolData == "NOT") {
@@ -181,6 +182,11 @@ void Field::placeGate(QPoint location)
         newInput->setMultiBit(true);
         gates.append(newInput);
         inputGates.append(newInput);
+    } else if(toolData.contains("DECODER")) {
+        Decoder* newDec = new Decoder(location);
+        QString num = toolData.remove("DECODER");
+        newDec->setNumberOfBits(num.toInt());
+        gates.append(newDec);
     }
 }
 

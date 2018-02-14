@@ -51,3 +51,8 @@ void SideSelectionPane::on_interactButton_clicked()
 {
     emit toolChanged(Mode::interact, "");
 }
+
+void SideSelectionPane::on_decoderBits_returnPressed()
+{
+    emit toolChanged(Mode::place, "DECODER" + ui->decoderBits->text());
+}

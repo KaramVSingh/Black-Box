@@ -10,7 +10,8 @@ enum class GateType {
     DFLIPFLOP,
     INPUT,
     OUTPUT,
-    CUSTOM
+    CUSTOM,
+    DECODER
 };
 
 enum class Mode {
