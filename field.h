@@ -19,6 +19,7 @@
 #include "gates/input.h"
 #include "gates/output.h"
 #include "gates/decoder.h"
+#include "gates/encoder.h"
 
 namespace Ui {
 class Field;

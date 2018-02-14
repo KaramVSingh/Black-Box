@@ -89,11 +89,14 @@ QImage Decoder::toImage(float zoom)
     paint.drawLine(QPoint(GRID_DENSITY, GRID_DENSITY), QPoint(width - GRID_DENSITY, 0));
     paint.drawLine(QPoint(GRID_DENSITY, GRID_DENSITY), QPoint(width - GRID_DENSITY, length));
     paint.drawLine(QPoint(width - GRID_DENSITY, length), QPoint(width - GRID_DENSITY, 0));
-    paint.drawLine(QPoint(0, GRID_DENSITY), QPoint(GRID_DENSITY, GRID_DENSITY));
 
     for(int i = 0; i < numberOfBits; i++) {
         paint.drawLine(QPoint(width - GRID_DENSITY, (i + 1) * GRID_DENSITY), QPoint(width, (i + 1) * GRID_DENSITY));
     }
+
+    pen.setWidth(4);
+    paint.setPen(pen);
+    paint.drawLine(QPoint(0, GRID_DENSITY), QPoint(GRID_DENSITY, GRID_DENSITY));
 
     paint.end();
 

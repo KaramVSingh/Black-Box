@@ -11,7 +11,8 @@ enum class GateType {
     INPUT,
     OUTPUT,
     CUSTOM,
-    DECODER
+    DECODER,
+    ENCODER
 };
 
 enum class Mode {

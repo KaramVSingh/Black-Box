@@ -56,3 +56,8 @@ void SideSelectionPane::on_decoderBits_returnPressed()
 {
     emit toolChanged(Mode::place, "DECODER" + ui->decoderBits->text());
 }
+
+void SideSelectionPane::on_encoderBits_returnPressed()
+{
+    emit toolChanged(Mode::place, "ENCODER" + ui->encoderBits->text());
+}

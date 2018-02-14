@@ -37,7 +37,8 @@ SOURCES += \
     gates/gate.cpp \
     gates/input.cpp \
     gates/output.cpp \
-    gates/decoder.cpp
+    gates/decoder.cpp \
+    gates/encoder.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -53,7 +54,8 @@ HEADERS += \
     gates/gate.h \
     gates/input.h \
     gates/output.h \
-    gates/decoder.h
+    gates/decoder.h \
+    gates/encoder.h
 
 FORMS += \
         mainwindow.ui \

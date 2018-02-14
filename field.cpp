@@ -187,6 +187,11 @@ void Field::placeGate(QPoint location)
         QString num = toolData.remove("DECODER");
         newDec->setNumberOfBits(num.toInt());
         gates.append(newDec);
+    } else if(toolData.contains("ENCODER")) {
+        Encoder* newEn = new Encoder(location);
+        QString num = toolData.remove("ENCODER");
+        newEn->setNumberOfBits(num.toInt());
+        gates.append(newEn);
     }
 }
 

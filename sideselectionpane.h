@@ -33,6 +33,8 @@ private slots:
 
     void on_decoderBits_returnPressed();
 
+    void on_encoderBits_returnPressed();
+
 private:
     Ui::SideSelectionPane *ui;
     void paintEvent(QPaintEvent *e);
