@@ -10,6 +10,7 @@ Field::Field(QWidget *parent) :
     tool = Mode::place;
     dragging = false;
     setMouseTracking(true);
+    setFocusPolicy(Qt::StrongFocus);
     ui->setupUi(this);
     topLeftLocation.setX(0);
     topLeftLocation.setY(0);
@@ -102,13 +103,28 @@ void Field::paintEvent(QPaintEvent *e)
 
     paint.fillRect(0, 0, this->width(), this->height(), Qt::white);
     for(int i = 0; i < gates.size(); i++) {
-        paint.drawImage((gates[i]->location - topLeftLocation) * zoom, gates[i]->toImage(zoom));
+        if(gates[i]->toType() != GateType::INPUT) {
+            paint.drawImage((gates[i]->location - topLeftLocation) * zoom, gates[i]->toImage(zoom));
+        } else {
+            paint.drawImage((gates[i]->location - topLeftLocation - QPoint(3 * GRID_DENSITY, 0)) * zoom, gates[i]->toImage(zoom));
+        }
+
     }
 
     for(int i = 0; i < wires.size(); i++) {
 
         if(!wires[i]->moreThanOneVertex) {
             continue;
+        }
+
+        if(wires[i]->multiBit) {
+            QPen nPen(Qt::black);
+            nPen.setWidth((int)(4 * zoom));
+            paint.setPen(nPen);
+        } else {
+            QPen nPen(Qt::black);
+            nPen.setWidth((int)(2 * zoom));
+            paint.setPen(nPen);
         }
 
         for(int j = 0; j < wires[i]->vertices.size() - 1; j++) {
@@ -153,12 +169,18 @@ void Field::placeGate(QPoint location)
         gates.append(new Or(location));
     } else if(toolData == "INPUT") {
         Input* newInput = new Input(location);
+        newInput->setMultiBit(false);
         gates.append(newInput);
         inputGates.append(newInput);
     } else if(toolData == "OUTPUT") {
         Output* newOutput = new Output(location);
         gates.append(newOutput);
         outputGates.append(newOutput);
+    } else if(toolData == "M_INPUT") {
+        Input * newInput = new Input(location);
+        newInput->setMultiBit(true);
+        gates.append(newInput);
+        inputGates.append(newInput);
     }
 }
 
@@ -193,21 +215,50 @@ void Field::drawWire(QPoint point)
                         return;
                     } else {
                         // this means we can safely connect the wire
-                        drawingWire = false;
-                        currentWire->addVertex(point);
-                        currentWire->moreThanOneVertex = true;
-                        currentWire->addOutputConnection(gates[i], inputPorts.indexOf(point));
 
-                        // now we need to connect the gates:
-                        Gate* inputOfWire = currentWire->input.gate;
-                        int inputOfWireIndex = currentWire->input.otherIndex;
+                        // we can only connect a wire if it is a multi bit to a multi bit or a single bit
+                        // to a single bit
+                        if(gates[i]->multiBitInputs.contains(inputPorts.indexOf(point))) {
+                            if(currentWire->multiBit || gates[i]->toType() == GateType::OUTPUT) {
+                                drawingWire = false;
+                                currentWire->addVertex(point);
+                                currentWire->moreThanOneVertex = true;
+                                currentWire->addOutputConnection(gates[i], inputPorts.indexOf(point));
 
-                        Gate* outputOfWire = currentWire->output.gate;
-                        int outputOfWireIndex = currentWire->output.otherIndex;
+                                // now we need to connect the gates:
+                                Gate* inputOfWire = currentWire->input.gate;
+                                int inputOfWireIndex = currentWire->input.otherIndex;
 
-                        inputOfWire->addOutput(outputOfWire, inputOfWireIndex, outputOfWireIndex);
-                        outputOfWire->addInput(inputOfWire, outputOfWireIndex, inputOfWireIndex);
-                        return;
+                                Gate* outputOfWire = currentWire->output.gate;
+                                int outputOfWireIndex = currentWire->output.otherIndex;
+
+                                inputOfWire->addOutput(outputOfWire, inputOfWireIndex, outputOfWireIndex);
+                                outputOfWire->addInput(inputOfWire, outputOfWireIndex, inputOfWireIndex);
+                                return;
+                            }
+
+                            return;
+                        } else {
+                            if(!currentWire->multiBit || gates[i]->toType() == GateType::OUTPUT) {
+                                drawingWire = false;
+                                currentWire->addVertex(point);
+                                currentWire->moreThanOneVertex = true;
+                                currentWire->addOutputConnection(gates[i], inputPorts.indexOf(point));
+
+                                // now we need to connect the gates:
+                                Gate* inputOfWire = currentWire->input.gate;
+                                int inputOfWireIndex = currentWire->input.otherIndex;
+
+                                Gate* outputOfWire = currentWire->output.gate;
+                                int outputOfWireIndex = currentWire->output.otherIndex;
+
+                                inputOfWire->addOutput(outputOfWire, inputOfWireIndex, outputOfWireIndex);
+                                outputOfWire->addInput(inputOfWire, outputOfWireIndex, inputOfWireIndex);
+                                return;
+                            }
+
+                            return;
+                        }
                     }
                 }
             }
@@ -227,21 +278,50 @@ void Field::drawWire(QPoint point)
                         return;
                     } else {
                         // this means we can safely connect the wire
-                        drawingWire = false;
-                        currentWire->addVertex(point);
-                        currentWire->moreThanOneVertex = true;
-                        currentWire->addInputConnection(gates[i], outputPorts.indexOf(point));
 
-                        // now we need to connect the gates:
-                        Gate* inputOfWire = currentWire->input.gate;
-                        int inputOfWireIndex = currentWire->input.otherIndex;
+                        // we only want to connect the wire if it is connecting from a multi bit to multi bit
+                        // or a single bit to single bit
+                        if(gates[i]->multiBitOutputs.contains(outputPorts.indexOf(point))) {
+                            if(currentWire->multiBit) {
+                                drawingWire = false;
+                                currentWire->addVertex(point);
+                                currentWire->moreThanOneVertex = true;
+                                currentWire->addInputConnection(gates[i], outputPorts.indexOf(point));
 
-                        Gate* outputOfWire = currentWire->output.gate;
-                        int outputOfWireIndex = currentWire->output.otherIndex;
+                                // now we need to connect the gates:
+                                Gate* inputOfWire = currentWire->input.gate;
+                                int inputOfWireIndex = currentWire->input.otherIndex;
 
-                        inputOfWire->addOutput(outputOfWire, inputOfWireIndex, outputOfWireIndex);
-                        outputOfWire->addInput(inputOfWire, outputOfWireIndex, inputOfWireIndex);
-                        return;
+                                Gate* outputOfWire = currentWire->output.gate;
+                                int outputOfWireIndex = currentWire->output.otherIndex;
+
+                                inputOfWire->addOutput(outputOfWire, inputOfWireIndex, outputOfWireIndex);
+                                outputOfWire->addInput(inputOfWire, outputOfWireIndex, inputOfWireIndex);
+                                return;
+                            }
+
+                            return;
+                        } else {
+                            if(!currentWire->multiBit) {
+                                drawingWire = false;
+                                currentWire->addVertex(point);
+                                currentWire->moreThanOneVertex = true;
+                                currentWire->addInputConnection(gates[i], outputPorts.indexOf(point));
+
+                                // now we need to connect the gates:
+                                Gate* inputOfWire = currentWire->input.gate;
+                                int inputOfWireIndex = currentWire->input.otherIndex;
+
+                                Gate* outputOfWire = currentWire->output.gate;
+                                int outputOfWireIndex = currentWire->output.otherIndex;
+
+                                inputOfWire->addOutput(outputOfWire, inputOfWireIndex, outputOfWireIndex);
+                                outputOfWire->addInput(inputOfWire, outputOfWireIndex, inputOfWireIndex);
+                                return;
+                            }
+
+                            return;
+                        }
                     }
                 }
             }
@@ -259,21 +339,49 @@ void Field::drawWire(QPoint point)
                 if(currentWire->hasOutput()) {
                     // if the current wire has an output then it is only connected
                     // to the input port of a gate, which means it can connect anywhere
-                    drawingWire = false;
-                    currentWire->addVertex(point);
-                    currentWire->moreThanOneVertex = true;
-                    currentWire->addInputConnection(wires[i]->input.gate, wires[i]->input.otherIndex);
 
-                    // now we need to connect the gates:
-                    Gate* inputOfWire = currentWire->input.gate;
-                    int inputOfWireIndex = currentWire->input.otherIndex;
+                    if(wires[i]->multiBit) {
+                        if(currentWire->multiBit) {
+                            drawingWire = false;
+                            currentWire->addVertex(point);
+                            currentWire->moreThanOneVertex = true;
+                            currentWire->addInputConnection(wires[i]->input.gate, wires[i]->input.otherIndex);
 
-                    Gate* outputOfWire = currentWire->output.gate;
-                    int outputOfWireIndex = currentWire->output.otherIndex;
+                            // now we need to connect the gates:
+                            Gate* inputOfWire = currentWire->input.gate;
+                            int inputOfWireIndex = currentWire->input.otherIndex;
 
-                    inputOfWire->addOutput(outputOfWire, inputOfWireIndex, outputOfWireIndex);
-                    outputOfWire->addInput(inputOfWire, outputOfWireIndex, inputOfWireIndex);
-                    return;
+                            Gate* outputOfWire = currentWire->output.gate;
+                            int outputOfWireIndex = currentWire->output.otherIndex;
+
+                            inputOfWire->addOutput(outputOfWire, inputOfWireIndex, outputOfWireIndex);
+                            outputOfWire->addInput(inputOfWire, outputOfWireIndex, inputOfWireIndex);
+                            return;
+                        }
+
+                        return;
+                    } else {
+                        if(!currentWire->multiBit) {
+                            drawingWire = false;
+                            currentWire->addVertex(point);
+                            currentWire->moreThanOneVertex = true;
+                            currentWire->addInputConnection(wires[i]->input.gate, wires[i]->input.otherIndex);
+
+                            // now we need to connect the gates:
+                            Gate* inputOfWire = currentWire->input.gate;
+                            int inputOfWireIndex = currentWire->input.otherIndex;
+
+                            Gate* outputOfWire = currentWire->output.gate;
+                            int outputOfWireIndex = currentWire->output.otherIndex;
+
+                            inputOfWire->addOutput(outputOfWire, inputOfWireIndex, outputOfWireIndex);
+                            outputOfWire->addInput(inputOfWire, outputOfWireIndex, inputOfWireIndex);
+                            return;
+                        }
+
+                        return;
+                    }
+
                 }
 
                 if(currentWire->hasInput()) {
@@ -304,9 +412,15 @@ void Field::drawWire(QPoint point)
                 if(gates[i]->takenInputs.contains(inputPorts.indexOf(point))) {
                     // if this is the case then the gate already has something hooked up to this port
                     return;
-                } else {
+                } else {     
                     drawingWire = true;
                     Wire* newWire = new Wire();
+
+                    // now we need to deterine if the wire is being connected to a multi-bit input port
+                    if(gates[i]->multiBitInputs.contains(inputPorts.indexOf(point))) {
+                        newWire->multiBit = true;
+                    }
+
                     wires.append(newWire);
                     newWire->addVertex(point);
                     newWire->addOutputConnection(gates[i], inputPorts.indexOf(point));
@@ -325,6 +439,14 @@ void Field::drawWire(QPoint point)
                 } else {
                     drawingWire = true;
                     Wire* newWire = new Wire();
+
+                    // now we need to deterine if the wire is being connected to a multi-bit output port
+                    if(gates[i]->multiBitOutputs.contains(outputPorts.indexOf(point))) {
+                        newWire->multiBit = true;
+                    } else {
+                        newWire->multiBit = false;
+                    }
+
                     wires.append(newWire);
                     newWire->addVertex(point);
                     newWire->addInputConnection(gates[i], outputPorts.indexOf(point));
@@ -342,6 +464,14 @@ void Field::drawWire(QPoint point)
                 // could connect to a wire. only one of which constitutes creating a new wire
                 drawingWire = true;
                 Wire* newWire = new Wire();
+
+                // now we need to deterine if the wire is being connected to a multi-bit wire
+                if(wires[i]->multiBit) {
+                    newWire->multiBit = true;
+                } else {
+                    newWire->multiBit = false;
+                }
+
                 wires.append(newWire);
                 newWire->addVertex(point);
                 newWire->addInputConnection(wires[i]->input.gate, wires[i]->input.otherIndex);
@@ -356,7 +486,35 @@ void Field::toggleInputs(QPoint point)
     for(int i = 0; i < inputGates.size(); i++) {
         if(point == inputGates[i]->location + QPoint(GRID_DENSITY, GRID_DENSITY)) {
             // then we say you have pressed on the input:
-            inputGates[i]->changeValue();
+            if(!inputGates[i]->multiBit) {
+                inputGates[i]->changeValue();
+            } else {
+                // now we need to allow the user to type the new value they want for the input:
+
+                typedChar = "*";
+                QString newVal;
+
+                // this loop will be used to read the keyboard and get a value
+                while(typedChar != "\r") {
+
+                    QEventLoop typingLoop;
+                    connect(this, SIGNAL(keyTyped()), &typingLoop, SLOT(quit()));
+                    typingLoop.exec();
+
+                    // when we get here a character has been typed:
+                    if(typedChar[0].isDigit()) {
+                        if(newVal.toInt() < 999999 && QString(newVal + typedChar).toInt() >= 999999) {
+                            inputGates[i]->value = newVal.toInt();
+                            break;
+                        }
+                        newVal += typedChar;
+                        inputGates[i]->value = newVal.toInt();
+                        update();
+                    }
+                }
+
+            }
+
 
             for(int j = 0; j < outputGates.size(); j++) {
                 outputGates[j]->execute(0);
@@ -365,4 +523,11 @@ void Field::toggleInputs(QPoint point)
             return;
         }
     }
+}
+
+void Field::keyPressEvent(QKeyEvent *e)
+{
+
+    typedChar = e->text();
+    emit keyTyped();
 }

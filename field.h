@@ -7,6 +7,7 @@
 #include <QMouseEvent>
 #include <QPoint>
 #include <QRect>
+#include <QKeyEvent>
 
 #include "detail.h"
 #include "wire.h"
@@ -31,6 +32,9 @@ public:
     ~Field();
     QPoint topLeftLocation;
 
+signals:
+    void keyTyped();
+
 public slots:
     void changeTool(Mode newTool, QString data);
 
@@ -44,6 +48,7 @@ private:
     void placeGate(QPoint location);
     void drawWire(QPoint point);
     void toggleInputs(QPoint point);
+    void keyPressEvent(QKeyEvent *e);
 
     QVector<Gate*> gates;
     QVector<Input*> inputGates;
@@ -55,6 +60,7 @@ private:
     bool drawingWire;
     Mode tool;
     QString toolData;
+    QString typedChar;
 
 
 };

@@ -43,8 +43,8 @@ void Input::changeLocation(QPoint newLocation)
 
 QImage Input::toImage(float zoom)
 {
-    QImage image(32, 32, QImage::Format_RGB32);
-    image.fill(Qt::white);
+    QImage image(80, 32, QImage::Format_ARGB32);
+    image.fill(qRgba(0, 0, 0, 0));
     QPainter paint;
     QPen pen(Qt::black);
     pen.setWidth(2);
@@ -55,14 +55,22 @@ QImage Input::toImage(float zoom)
     font.setPointSize(9);
     QFontMetrics metrics(font);
     paint.setFont(font);
-
     QString valueString = QString::number(value);
     int widthOfString = metrics.width(valueString);
     int heightOfString = metrics.height();
 
-    paint.drawLine(QPoint(2 * GRID_DENSITY, GRID_DENSITY), QPoint(GRID_DENSITY, 0));
-    paint.drawLine(QPoint(2 * GRID_DENSITY, GRID_DENSITY), QPoint(GRID_DENSITY, 2 * GRID_DENSITY));
-    paint.drawText(GRID_DENSITY - widthOfString, GRID_DENSITY + heightOfString / 4 + 1, valueString);
+    if(!multiBit) {
+        paint.drawLine(QPoint(5 * GRID_DENSITY, GRID_DENSITY), QPoint(4 * GRID_DENSITY, 0));
+        paint.drawLine(QPoint(5 * GRID_DENSITY, GRID_DENSITY), QPoint(4 * GRID_DENSITY, 2 * GRID_DENSITY));
+        paint.drawText(4 * GRID_DENSITY - widthOfString, GRID_DENSITY + heightOfString / 4 + 1, valueString);
+    } else {
+        paint.drawLine(QPoint(5 * GRID_DENSITY, GRID_DENSITY), QPoint(4 * GRID_DENSITY, 0));
+        paint.drawLine(QPoint(5 * GRID_DENSITY, GRID_DENSITY), QPoint(4 * GRID_DENSITY, 2 * GRID_DENSITY));
+        paint.drawLine(QPoint(5 * GRID_DENSITY - GRID_DENSITY / 3, GRID_DENSITY), QPoint(4 * GRID_DENSITY - GRID_DENSITY / 3, 0));
+        paint.drawLine(QPoint(5 * GRID_DENSITY - GRID_DENSITY / 3, GRID_DENSITY), QPoint(4 * GRID_DENSITY - GRID_DENSITY / 3, 2 * GRID_DENSITY));
+        paint.drawText(4 * GRID_DENSITY - GRID_DENSITY / 3 - widthOfString, GRID_DENSITY + heightOfString / 4 + 1, valueString);
+    }
+
     paint.end();
 
     image = image.scaled((int)(width * zoom), (int)(length * zoom), Qt::KeepAspectRatio);
@@ -85,18 +93,18 @@ QVector<QPoint> Input::getOutputLocations()
 
 GateType Input::toType()
 {
-    if(value) {
-        return GateType::HIGH;
-    }
-
-    return GateType::LOW;
+    return GateType::INPUT;
 }
 
 QString Input::toString()
 {
-    if(value) {
-        return "HIGH";
-    }
+    return "INPUT";
+}
 
-    return "LOW";
+void Input::setMultiBit(bool flag)
+{
+    multiBit = flag;
+    if(multiBit) {
+        multiBitOutputs.append(0);
+    }
 }

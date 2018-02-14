@@ -13,6 +13,7 @@ SideSelectionPane::SideSelectionPane(QWidget *parent) :
     ui->comboBox->addItem("OR");
     ui->comboBox->addItem("NOT");
     ui->comboBox->addItem("INPUT");
+    ui->comboBox->addItem("M_INPUT");
     ui->comboBox->addItem("OUTPUT");
 }
 

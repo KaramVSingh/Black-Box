@@ -8,8 +8,7 @@ enum class GateType {
     OR,
     NOT,
     DFLIPFLOP,
-    HIGH,
-    LOW,
+    INPUT,
     OUTPUT,
     CUSTOM
 };

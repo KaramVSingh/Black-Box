@@ -13,6 +13,7 @@ public:
     Gate::Connection output;
     bool moreThanOneVertex;
     bool hasIn, hasOut;
+    bool multiBit = false;
 
     void addVertex(QPoint point);
     void addInputConnection(Gate* gate, int gateIndex);

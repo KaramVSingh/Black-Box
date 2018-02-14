@@ -6,7 +6,7 @@
 class Output:public Gate
 {
 public:
-    Output(QPoint l): Gate(l) { numberOfInputLines = 1; inputs.resize(numberOfInputLines); numberOfOutputLines = 0; outputs.resize(numberOfOutputLines); width = 32; length = 32; }
+    Output(QPoint l): Gate(l) { numberOfInputLines = 1; inputs.resize(numberOfInputLines); numberOfOutputLines = 0; outputs.resize(numberOfOutputLines); width = 80; length = 32; }
     int execute(int index);
     bool addInput(Gate* newGate, int thisIndex, int otherIndex);
     bool addOutput(Gate* newGate, int thisIndex, int otherIndex);

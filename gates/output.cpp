@@ -8,6 +8,7 @@ int Output::execute(int index)
     }
 
     value = inputs[0].gate->execute(inputs[0].otherIndex);
+    return value;
 }
 
 bool Output::addInput(Gate* newGate, int thisIndex, int otherIndex)
@@ -46,8 +47,8 @@ void Output::changeLocation(QPoint newLocation)
 
 QImage Output::toImage(float zoom)
 {
-    QImage image(32, 32, QImage::Format_RGB32);
-    image.fill(Qt::white);
+    QImage image(80, 32, QImage::Format_ARGB32);
+    image.fill(qRgba(0, 0, 0, 0));
     QPainter paint;
     QPen pen(Qt::black);
     pen.setWidth(2);

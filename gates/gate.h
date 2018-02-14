@@ -42,7 +42,9 @@ public:
     int numberOfOutputLines;
 
     QVector<int> takenInputs;
+    QVector<int> multiBitInputs;
     QVector<int> takenOutputs;
+    QVector<int> multiBitOutputs;
 
     QPoint location;
     int width, length;
