@@ -161,7 +161,6 @@ QPoint Field::getFieldLocation(QPoint guiLocation)
 
 void Field::placeGate(QPoint location)
 {
-    qDebug() << toolData;
     if(toolData == "AND") {
         gates.append(new And(location));
     } else if(toolData == "NOT") {
@@ -192,6 +191,10 @@ void Field::placeGate(QPoint location)
         QString num = toolData.remove("ENCODER");
         newEn->setNumberOfBits(num.toInt());
         gates.append(newEn);
+    } else if(toolData == "DFLIPFLOP") {
+        DFlipFlop* newD = new DFlipFlop(location);
+        dflipflops.append(newD);
+        gates.append(newD);
     }
 }
 
@@ -526,6 +529,13 @@ void Field::toggleInputs(QPoint point)
 
             }
 
+            for(int j = 0; j < dflipflops.size(); j++) {
+                dflipflops[j]->update();
+            }
+
+            for(int j = 0; j < dflipflops.size(); j++) {
+                dflipflops[j]->change();
+            }
 
             for(int j = 0; j < outputGates.size(); j++) {
                 outputGates[j]->execute(0);
@@ -538,7 +548,6 @@ void Field::toggleInputs(QPoint point)
 
 void Field::keyPressEvent(QKeyEvent *e)
 {
-
     typedChar = e->text();
     emit keyTyped();
 }

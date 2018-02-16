@@ -38,7 +38,8 @@ SOURCES += \
     gates/input.cpp \
     gates/output.cpp \
     gates/decoder.cpp \
-    gates/encoder.cpp
+    gates/encoder.cpp \
+    gates/dflipflop.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -55,7 +56,8 @@ HEADERS += \
     gates/input.h \
     gates/output.h \
     gates/decoder.h \
-    gates/encoder.h
+    gates/encoder.h \
+    gates/dflipflop.h
 
 FORMS += \
         mainwindow.ui \

@@ -15,6 +15,7 @@ SideSelectionPane::SideSelectionPane(QWidget *parent) :
     ui->comboBox->addItem("INPUT");
     ui->comboBox->addItem("M_INPUT");
     ui->comboBox->addItem("OUTPUT");
+    ui->comboBox->addItem("DFLIPFLOP");
 }
 
 SideSelectionPane::~SideSelectionPane()

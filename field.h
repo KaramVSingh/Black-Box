@@ -20,6 +20,7 @@
 #include "gates/output.h"
 #include "gates/decoder.h"
 #include "gates/encoder.h"
+#include "gates/dflipflop.h"
 
 namespace Ui {
 class Field;
@@ -53,6 +54,7 @@ private:
     void keyPressEvent(QKeyEvent *e);
 
     QVector<Gate*> gates;
+    QVector<DFlipFlop*> dflipflops;
     QVector<Input*> inputGates;
     QVector<Output*> outputGates;
     QVector<Wire*> wires;
