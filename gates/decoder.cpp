@@ -56,12 +56,6 @@ bool Decoder::addOutput(Gate *newGate, int thisIndex, int otherIndex)
         return false;
     }
 
-    if(thisIndex >= numberOfOutputLines) {
-        // this means its an invlaid index
-        qDebug() << "DECODER Gate adding to illegal output index";
-        return false;
-    }
-
     takenOutputs.append(thisIndex);
     Connection newConnection;
     newConnection.gate = newGate;

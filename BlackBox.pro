@@ -39,7 +39,8 @@ SOURCES += \
     gates/output.cpp \
     gates/decoder.cpp \
     gates/encoder.cpp \
-    gates/dflipflop.cpp
+    gates/dflipflop.cpp \
+    blackboxwindow.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -57,11 +58,13 @@ HEADERS += \
     gates/output.h \
     gates/decoder.h \
     gates/encoder.h \
-    gates/dflipflop.h
+    gates/dflipflop.h \
+    blackboxwindow.h
 
 FORMS += \
         mainwindow.ui \
     sideselectionpane.ui \
     field.ui \
     topselectionpane.ui \
-    bottomselectionpane.ui
+    bottomselectionpane.ui \
+    blackboxwindow.ui

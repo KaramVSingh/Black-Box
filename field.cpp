@@ -27,6 +27,7 @@ void Field::mousePressEvent(QMouseEvent *e)
     dragging = true;
     // location will be in terms of the field, not the contents of the field
     QPoint fieldPoint = getFieldLocation(QPoint(e->x(), e->y()));
+    QPoint guiPoint = zoom * (fieldPoint - topLeftLocation);
     startLocation = fieldPoint;
 
     switch(tool) {
@@ -61,6 +62,12 @@ void Field::mousePressEvent(QMouseEvent *e)
         break;
     case Mode::interact:
         toggleInputs(fieldPoint);
+        break;
+    case Mode::blackBox:
+        drawRect = true;
+        selectionRectangle.setTopLeft(guiPoint);
+        selectionRectangle.setBottomRight(guiPoint);
+        break;
     }
 
     update();
@@ -69,13 +76,16 @@ void Field::mousePressEvent(QMouseEvent *e)
 void Field::mouseMoveEvent(QMouseEvent *e)
 {
     QPoint fieldPoint = getFieldLocation(QPoint(e->x(), e->y()));
-    int windowWidth = this->width() / GRID_DENSITY * GRID_DENSITY;
-    int windowHeight = this ->height() / GRID_DENSITY * GRID_DENSITY;
+    QPoint guiPoint = zoom * (fieldPoint - topLeftLocation);
 
     if(!dragging) {
 
     } else {
-
+        switch(tool) {
+        case Mode::blackBox:
+            selectionRectangle.setBottomRight(guiPoint);
+            break;
+        }
     }
     update();
 }
@@ -88,6 +98,19 @@ void Field::mouseReleaseEvent(QMouseEvent *e)
     switch(tool) {
     case Mode::move:
         topLeftLocation += startLocation - fieldPoint;
+        break;
+    case Mode::blackBox:
+        drawRect = false;
+        cleanRectangle();
+        // now you want to actually get the gates and wires in the box
+        selectGates();
+
+        if(selectedGates.size() > 0) {
+            // create black box window:
+            BlackBoxWindow* newWindow = new BlackBoxWindow(selectedGates, selectedWires);
+            newWindow->show();
+        }
+
         break;
     }
     update();
@@ -130,6 +153,10 @@ void Field::paintEvent(QPaintEvent *e)
         for(int j = 0; j < wires[i]->vertices.size() - 1; j++) {
             paint.drawLine((wires[i]->vertices[j] - topLeftLocation) * zoom, (wires[i]->vertices[j + 1] - topLeftLocation) * zoom);
         }
+    }
+
+    if(drawRect) {
+        paint.drawRect(selectionRectangle);
     }
 }
 
@@ -550,4 +577,89 @@ void Field::keyPressEvent(QKeyEvent *e)
 {
     typedChar = e->text();
     emit keyTyped();
+}
+
+void Field::selectGates()
+{
+    selectedGates.clear();
+    selectedWires.clear();
+
+    QPoint topLeft(getFieldLocation(selectionRectangle.topLeft()));
+    QPoint bottomRight(getFieldLocation(selectionRectangle.bottomRight()));
+
+    for(int i = 0; i < gates.size(); i++) {
+
+        // the thing we want to look out for here is we dont want to be able to select a wire and not
+        // select the gate it is connected to. we will do this by looking at the gates connected
+        // to the wire rather than looking at the geometric connections:
+
+        QVector<QPoint> inputLocations = gates[i]->getInputLocations();
+        QVector<QPoint> outputLocations = gates[i]->getOutputLocations();
+        bool appended = false;
+
+        for(int j = 0; j < inputLocations.size(); j++) {
+            if(inputLocations[j].x() >= topLeft.x() && inputLocations[j].x() <= bottomRight.x()) {
+                if(inputLocations[j].y() >= topLeft.y() && inputLocations[j].y() <= bottomRight.y()) {
+                    if(!appended) {
+                        selectedGates.append(gates[i]);
+                        appended = true;
+                    }
+                }
+            }
+        }
+
+        if(appended) {
+            continue;
+        }
+
+        for(int j = 0; j < outputLocations.size(); j++) {
+            if(outputLocations[j].x() >= topLeft.x() && outputLocations[j].x() <= bottomRight.x()) {
+                if(outputLocations[j].y() >= topLeft.y() && outputLocations[j].y() <= bottomRight.y()) {
+                    if(!appended) {
+                        selectedGates.append(gates[i]);
+                        appended = true;
+                    }
+                }
+            }
+        }
+    }
+
+    for(int i = 0; i < wires.size(); i++) {
+        for(int j = 0; j < wires[i]->vertices.size(); j++) {
+            QPoint vert = wires[i]->vertices[j];
+
+            if(vert.x() >= topLeft.x() && vert.x() <= bottomRight.x()) {
+                if(vert.y() >= topLeft.y() && vert.y() <= bottomRight.y()) {
+                    if(!selectedWires.contains(wires[i])) {
+                        selectedWires.append(wires[i]);
+                        if(!selectedGates.contains(wires[i]->output.gate)) {
+                            selectedGates.append(wires[i]->output.gate);
+                        }
+                        if(!selectedGates.contains(wires[i]->input.gate)) {
+                            selectedGates.append(wires[i]->input.gate);
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+void Field::cleanRectangle()
+{
+    if(selectionRectangle.topLeft().y() > selectionRectangle.bottomRight().y()) {
+        // we need to exchange the ys of each point:
+        int bottom = selectionRectangle.top();
+        selectionRectangle.setTop(selectionRectangle.bottom());
+        selectionRectangle.setBottom(bottom);
+
+    }
+
+    if(selectionRectangle.topLeft().x() > selectionRectangle.bottomRight().x()) {
+        // we need to exchange the xs of each point
+        int left = selectionRectangle.right();
+        selectionRectangle.setRight(selectionRectangle.left());
+        selectionRectangle.setLeft(left);
+
+    }
 }

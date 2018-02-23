@@ -59,6 +59,13 @@
     </widget>
    </item>
    <item>
+    <widget class="QPushButton" name="boxButton">
+     <property name="text">
+      <string>Black Box</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QLineEdit" name="decoderBits">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Minimum" vsizetype="Fixed">

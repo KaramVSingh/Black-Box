@@ -62,3 +62,8 @@ void SideSelectionPane::on_encoderBits_returnPressed()
 {
     emit toolChanged(Mode::place, "ENCODER" + ui->encoderBits->text());
 }
+
+void SideSelectionPane::on_boxButton_clicked()
+{
+    emit toolChanged(Mode::blackBox, "");
+}

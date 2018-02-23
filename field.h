@@ -11,6 +11,7 @@
 
 #include "detail.h"
 #include "wire.h"
+#include "blackboxwindow.h"
 
 #include "gates/gate.h"
 #include "gates/and.h"
@@ -52,11 +53,15 @@ private:
     void drawWire(QPoint point);
     void toggleInputs(QPoint point);
     void keyPressEvent(QKeyEvent *e);
+    void selectGates();
+    void cleanRectangle();
 
     QVector<Gate*> gates;
     QVector<DFlipFlop*> dflipflops;
     QVector<Input*> inputGates;
     QVector<Output*> outputGates;
+    QVector<Gate*> selectedGates;
+    QVector<Wire*> selectedWires;
     QVector<Wire*> wires;
     QPoint startLocation;
     float zoom;
@@ -65,6 +70,9 @@ private:
     Mode tool;
     QString toolData;
     QString typedChar;
+
+    QRect selectionRectangle;
+    bool drawRect = false;
 
 
 };

@@ -35,6 +35,8 @@ private slots:
 
     void on_encoderBits_returnPressed();
 
+    void on_boxButton_clicked();
+
 private:
     Ui::SideSelectionPane *ui;
     void paintEvent(QPaintEvent *e);

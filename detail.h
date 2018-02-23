@@ -21,7 +21,8 @@ enum class Mode {
     zoomOut,
     move,
     wire,
-    interact
+    interact,
+    blackBox
 };
 
 #endif // DETAIL_H
