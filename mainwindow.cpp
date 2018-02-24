@@ -8,6 +8,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     connect(ui->sideselectionpane, SIGNAL(toolChanged(Mode,QString)), ui->field, SLOT(changeTool(Mode,QString)));
     connect(ui->topselectionpane, SIGNAL(toolChanged(Mode,QString)), ui->field, SLOT(changeTool(Mode,QString)));
+    connect(ui->field, SIGNAL(addedGate(QString)), ui->sideselectionpane, SLOT(addGate(QString)));
 }
 
 MainWindow::~MainWindow()

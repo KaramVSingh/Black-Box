@@ -64,6 +64,16 @@
     <string>Zoom Out</string>
    </property>
   </widget>
+  <widget class="QLineEdit" name="textInput">
+   <property name="geometry">
+    <rect>
+     <x>340</x>
+     <y>520</y>
+     <width>120</width>
+     <height>20</height>
+    </rect>
+   </property>
+  </widget>
  </widget>
  <resources/>
  <connections/>

@@ -24,6 +24,9 @@ public:
 signals:
     void toolChanged(Mode, QString);
 
+public slots:
+    void addGate(QString gate);
+
 private slots:
     void on_comboBox_activated(const QString &arg1);
 

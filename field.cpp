@@ -109,6 +109,7 @@ void Field::mouseReleaseEvent(QMouseEvent *e)
             // create black box window:
             BlackBoxWindow* newWindow = new BlackBoxWindow(selectedGates, selectedWires);
             newWindow->show();
+            emit addedGate(newWindow->execute());
         }
 
         break;

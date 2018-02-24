@@ -123,6 +123,12 @@ QPoint BlackBoxWindow::getFieldLocation(QPoint guiLocation)
     return fieldLocation;
 }
 
+QString BlackBoxWindow::execute()
+{
+    // will return the name of the gate
+    return "";
+}
+
 void BlackBoxWindow::on_zoomInButton_clicked()
 {
     tool = Mode::zoomIn;

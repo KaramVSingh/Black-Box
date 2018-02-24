@@ -16,6 +16,8 @@ SideSelectionPane::SideSelectionPane(QWidget *parent) :
     ui->comboBox->addItem("M_INPUT");
     ui->comboBox->addItem("OUTPUT");
     ui->comboBox->addItem("DFLIPFLOP");
+
+    // now should look through all of the gates in the file:
 }
 
 SideSelectionPane::~SideSelectionPane()
@@ -36,6 +38,11 @@ void SideSelectionPane::paintEvent(QPaintEvent *e)
     // draw the dark rectangle background of the pane
     paint.fillRect(0, 0, this->width(), this->height(), QColor(70, 70, 70));
     paint.drawRect(0, 0, this->width(), this->height());
+}
+
+void SideSelectionPane::addGate(QString gate)
+{
+    ui->comboBox->addItem(gate);
 }
 
 void SideSelectionPane::on_comboBox_activated(const QString &arg1)

@@ -21,6 +21,7 @@ class BlackBoxWindow : public QWidget
 public:
     explicit BlackBoxWindow(QVector<Gate*> gates, QVector<Wire*> wires, QWidget *parent = 0);
     ~BlackBoxWindow();
+    QString execute();
 
 private slots:
     void on_moveButton_clicked();
