@@ -25,6 +25,10 @@ public:
 private slots:
     void on_moveButton_clicked();
 
+    void on_zoomInButton_clicked();
+
+    void on_zoomOutButton_clicked();
+
 private:
     void paintEvent(QPaintEvent* event);
     void mousePressEvent(QMouseEvent* event);

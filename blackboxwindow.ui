@@ -38,6 +38,32 @@
     <string>Move</string>
    </property>
   </widget>
+  <widget class="QPushButton" name="zoomInButton">
+   <property name="geometry">
+    <rect>
+     <x>740</x>
+     <y>430</y>
+     <width>50</width>
+     <height>50</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Zoom In</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="zoomOutButton">
+   <property name="geometry">
+    <rect>
+     <x>740</x>
+     <y>370</y>
+     <width>50</width>
+     <height>50</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Zoom Out</string>
+   </property>
+  </widget>
  </widget>
  <resources/>
  <connections/>

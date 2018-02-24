@@ -21,6 +21,31 @@ void BlackBoxWindow::mousePressEvent(QMouseEvent *event)
 {
     startingPoint = getFieldLocation(QPoint(event->x(), event->y()));
     update();
+    switch(tool) {
+    case Mode::zoomIn:
+        if(zoom < 2) {
+            zoom *= 2;
+            // we also need to change the topLeftLocation. we want to have the width and
+            // the height in terms of the new grid density. if we zoom in it is 32px
+            int windowWidth = this->width() / GRID_DENSITY * GRID_DENSITY;
+            int windowHeight = this ->height() / GRID_DENSITY * GRID_DENSITY;
+
+            topLeftLocation.setX(startingPoint.x() - (int)(windowWidth / 2 / zoom) / GRID_DENSITY * GRID_DENSITY);
+            topLeftLocation.setY(startingPoint.y() - (int)(windowHeight / 2 / zoom) / GRID_DENSITY * GRID_DENSITY);
+        }
+        break;
+    case Mode::zoomOut:
+        if(zoom > 0.5) {
+            zoom /= 2;
+            // we also need to change the topLeftLocation
+            int windowWidth = this->width() / GRID_DENSITY * GRID_DENSITY;
+            int windowHeight = this ->height() / GRID_DENSITY * GRID_DENSITY;
+
+            topLeftLocation.setX(startingPoint.x() - (int)(windowWidth / 2 / zoom) / GRID_DENSITY * GRID_DENSITY);
+            topLeftLocation.setY(startingPoint.y() - (int)(windowHeight / 2 / zoom) / GRID_DENSITY * GRID_DENSITY);
+        }
+        break;
+    }
 }
 
 void BlackBoxWindow::mouseReleaseEvent(QMouseEvent *event)
@@ -72,11 +97,6 @@ void BlackBoxWindow::paintEvent(QPaintEvent *event)
     }
 }
 
-void BlackBoxWindow::on_moveButton_clicked()
-{
-    tool = Mode::move;
-}
-
 // used to translate between gui point and field point
 QPoint BlackBoxWindow::getFieldLocation(QPoint guiLocation)
 {
@@ -101,4 +121,19 @@ QPoint BlackBoxWindow::getFieldLocation(QPoint guiLocation)
     fieldLocation += topLeftLocation;
 
     return fieldLocation;
+}
+
+void BlackBoxWindow::on_zoomInButton_clicked()
+{
+    tool = Mode::zoomIn;
+}
+
+void BlackBoxWindow::on_zoomOutButton_clicked()
+{
+    tool = Mode::zoomOut;
+}
+
+void BlackBoxWindow::on_moveButton_clicked()
+{
+    tool = Mode::move;
 }
