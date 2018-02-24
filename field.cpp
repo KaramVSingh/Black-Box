@@ -124,6 +124,10 @@ void Field::paintEvent(QPaintEvent *e)
     newPen.setWidth((int)(2 * zoom));
     paint.setPen(newPen);
 
+    if(drawRect) {
+        paint.drawRect(selectionRectangle);
+    }
+
     paint.fillRect(0, 0, this->width(), this->height(), Qt::white);
     for(int i = 0; i < gates.size(); i++) {
         if(gates[i]->toType() != GateType::INPUT) {
@@ -153,10 +157,6 @@ void Field::paintEvent(QPaintEvent *e)
         for(int j = 0; j < wires[i]->vertices.size() - 1; j++) {
             paint.drawLine((wires[i]->vertices[j] - topLeftLocation) * zoom, (wires[i]->vertices[j + 1] - topLeftLocation) * zoom);
         }
-    }
-
-    if(drawRect) {
-        paint.drawRect(selectionRectangle);
     }
 }
 
@@ -632,12 +632,6 @@ void Field::selectGates()
                 if(vert.y() >= topLeft.y() && vert.y() <= bottomRight.y()) {
                     if(!selectedWires.contains(wires[i])) {
                         selectedWires.append(wires[i]);
-                        if(!selectedGates.contains(wires[i]->output.gate)) {
-                            selectedGates.append(wires[i]->output.gate);
-                        }
-                        if(!selectedGates.contains(wires[i]->input.gate)) {
-                            selectedGates.append(wires[i]->input.gate);
-                        }
                     }
                 }
             }
