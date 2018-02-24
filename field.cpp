@@ -124,10 +124,6 @@ void Field::paintEvent(QPaintEvent *e)
     newPen.setWidth((int)(2 * zoom));
     paint.setPen(newPen);
 
-    if(drawRect) {
-        paint.drawRect(selectionRectangle);
-    }
-
     paint.fillRect(0, 0, this->width(), this->height(), Qt::white);
     for(int i = 0; i < gates.size(); i++) {
         if(gates[i]->toType() != GateType::INPUT) {
@@ -136,6 +132,10 @@ void Field::paintEvent(QPaintEvent *e)
             paint.drawImage((gates[i]->location - topLeftLocation - QPoint(3 * GRID_DENSITY, 0)) * zoom, gates[i]->toImage(zoom));
         }
 
+    }
+
+    if(drawRect) {
+        paint.drawRect(selectionRectangle);
     }
 
     for(int i = 0; i < wires.size(); i++) {

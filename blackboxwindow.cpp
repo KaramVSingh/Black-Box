@@ -17,6 +17,23 @@ BlackBoxWindow::~BlackBoxWindow()
     delete ui;
 }
 
+void BlackBoxWindow::mousePressEvent(QMouseEvent *event)
+{
+    startingPoint = getFieldLocation(QPoint(event->x(), event->y()));
+    update();
+}
+
+void BlackBoxWindow::mouseReleaseEvent(QMouseEvent *event)
+{
+    QPoint fieldPoint = getFieldLocation(QPoint(event->x(), event->y()));
+    switch(tool) {
+    case Mode::move:
+        topLeftLocation += startingPoint - fieldPoint;
+        break;
+    }
+    update();
+}
+
 void BlackBoxWindow::paintEvent(QPaintEvent *event)
 {
     QPainter paint(this);
@@ -53,4 +70,35 @@ void BlackBoxWindow::paintEvent(QPaintEvent *event)
             paint.drawLine((wires[i]->vertices[j] - topLeftLocation) * zoom, (wires[i]->vertices[j + 1] - topLeftLocation) * zoom);
         }
     }
+}
+
+void BlackBoxWindow::on_moveButton_clicked()
+{
+    tool = Mode::move;
+}
+
+// used to translate between gui point and field point
+QPoint BlackBoxWindow::getFieldLocation(QPoint guiLocation)
+{
+    // now we need to find the point that represents the location on the field
+    QPoint fieldLocation(guiLocation);
+    fieldLocation.setX((int)(fieldLocation.x() / zoom));
+    fieldLocation.setY((int)(fieldLocation.y() / zoom));
+
+    // we want to place it on the grid:
+    if(fieldLocation.x() % (int)(GRID_DENSITY) < (int)(GRID_DENSITY / 2)) {
+        fieldLocation.setX(fieldLocation.x() - fieldLocation.x() % (int)(GRID_DENSITY));
+    } else {
+        fieldLocation.setX((int)(fieldLocation.x() + (int)(GRID_DENSITY) - fieldLocation.x() % (int)(GRID_DENSITY)));
+    }
+
+    if(fieldLocation.y() % (int)(GRID_DENSITY) < (int)(GRID_DENSITY / 2)) {
+        fieldLocation.setY(fieldLocation.y() - fieldLocation.y() % (int)(GRID_DENSITY));
+    } else {
+        fieldLocation.setY((int)(fieldLocation.y() + (int)(GRID_DENSITY) - fieldLocation.y() % (int)(GRID_DENSITY)));
+    }
+
+    fieldLocation += topLeftLocation;
+
+    return fieldLocation;
 }
