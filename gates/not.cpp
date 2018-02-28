@@ -64,7 +64,7 @@ void Not::changeLocation(QPoint newLocation)
 QImage Not::toImage(float zoom)
 {
     QString dir(QFileInfo(".").absolutePath());
-    QPixmap pix(dir.append("/guiV3/imageSources/items/not_gate.png"));
+    QPixmap pix(dir.append("/BlackBox/imageSources/items/not_gate.png"));
     QImage image = pix.toImage();
     QImage newImage = image.scaled((int)(width * zoom), (int)(length * zoom), Qt::KeepAspectRatio);
     return newImage;

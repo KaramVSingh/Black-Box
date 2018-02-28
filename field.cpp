@@ -109,9 +109,10 @@ void Field::mouseReleaseEvent(QMouseEvent *e)
             // create black box window:
             BlackBoxWindow* newWindow = new BlackBoxWindow(selectedGates, selectedWires);
             newWindow->show();
-            emit addedGate(newWindow->execute());
+            newWindow->execute();
+            emit addedGate();
+            newWindow->close();
         }
-
         break;
     }
     update();
@@ -127,6 +128,9 @@ void Field::paintEvent(QPaintEvent *e)
 
     paint.fillRect(0, 0, this->width(), this->height(), Qt::white);
     for(int i = 0; i < gates.size(); i++) {
+        if(!gates[i]->render) {
+            continue;
+        }
         if(gates[i]->toType() != GateType::INPUT) {
             paint.drawImage((gates[i]->location - topLeftLocation) * zoom, gates[i]->toImage(zoom));
         } else {

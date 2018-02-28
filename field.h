@@ -38,7 +38,7 @@ public:
 
 signals:
     void keyTyped();
-    void addedGate(QString gate);
+    void addedGate();
 
 public slots:
     void changeTool(Mode newTool, QString data);

@@ -6,6 +6,9 @@
 #include <QPaintEvent>
 #include <QColor>
 #include <QPen>
+#include <QFileInfo>
+#include <QDir>
+#include <QDebug>
 
 #include "detail.h"
 
@@ -25,7 +28,7 @@ signals:
     void toolChanged(Mode, QString);
 
 public slots:
-    void addGate(QString gate);
+    void refreshGates();
 
 private slots:
     void on_comboBox_activated(const QString &arg1);

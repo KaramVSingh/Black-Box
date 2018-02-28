@@ -48,6 +48,8 @@ public:
 
     QPoint location;
     int width, length;
+
+    bool render = true;
 };
 
 #endif // GATE_H

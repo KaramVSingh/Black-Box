@@ -5,6 +5,7 @@
 #include <QPainter>
 #include <QPoint>
 #include <QMouseEvent>
+#include <QEventLoop>
 
 #include "gates/gate.h"
 #include "wire.h"
@@ -31,9 +32,12 @@ private slots:
     void on_zoomOutButton_clicked();
 
 private:
+
     void paintEvent(QPaintEvent* event);
     void mousePressEvent(QMouseEvent* event);
     void mouseReleaseEvent(QMouseEvent* event);
+    bool isValid(QString str);
+    QString getText();
     QPoint getFieldLocation(QPoint);
     QPoint startingPoint;
     Ui::BlackBoxWindow *ui;

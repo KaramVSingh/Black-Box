@@ -9,14 +9,7 @@ SideSelectionPane::SideSelectionPane(QWidget *parent) :
     ui->setupUi(this);
 
     // add all of the gates
-    ui->comboBox->addItem("AND");
-    ui->comboBox->addItem("OR");
-    ui->comboBox->addItem("NOT");
-    ui->comboBox->addItem("INPUT");
-    ui->comboBox->addItem("M_INPUT");
-    ui->comboBox->addItem("OUTPUT");
-    ui->comboBox->addItem("DFLIPFLOP");
-
+    refreshGates();
     // now should look through all of the gates in the file:
 }
 
@@ -40,9 +33,27 @@ void SideSelectionPane::paintEvent(QPaintEvent *e)
     paint.drawRect(0, 0, this->width(), this->height());
 }
 
-void SideSelectionPane::addGate(QString gate)
+void SideSelectionPane::refreshGates()
 {
-    ui->comboBox->addItem(gate);
+    ui->comboBox->clear();
+    QString dir(QFileInfo(".").absolutePath());
+    dir.append("/BlackBox/CustomGates/");
+    QDir directory(dir);
+    QStringList customGates = directory.entryList(QStringList() << "*.bb" << "*.BB", QDir::Files);
+
+    ui->comboBox->addItem("AND");
+    ui->comboBox->addItem("OR");
+    ui->comboBox->addItem("NOT");
+    ui->comboBox->addItem("INPUT");
+    ui->comboBox->addItem("M_INPUT");
+    ui->comboBox->addItem("OUTPUT");
+    ui->comboBox->addItem("DFLIPFLOP");
+
+    foreach(QString gate, customGates) {
+        QString name = gate.split(".")[0];
+        ui->comboBox->addItem(name);
+    }
+
 }
 
 void SideSelectionPane::on_comboBox_activated(const QString &arg1)

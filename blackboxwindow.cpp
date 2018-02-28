@@ -68,6 +68,9 @@ void BlackBoxWindow::paintEvent(QPaintEvent *event)
 
     paint.fillRect(0, 0, this->width(), this->height(), Qt::white);
     for(int i = 0; i < gates.size(); i++) {
+        if(!gates[i]->render) {
+            continue;
+        }
         if(gates[i]->toType() != GateType::INPUT) {
             paint.drawImage((gates[i]->location - topLeftLocation) * zoom, gates[i]->toImage(zoom));
         } else {
@@ -126,7 +129,46 @@ QPoint BlackBoxWindow::getFieldLocation(QPoint guiLocation)
 QString BlackBoxWindow::execute()
 {
     // will return the name of the gate
-    return "";
+    // first thing we need to do is get the name of the new gate.
+    // it cannot be a keyword so it can not be CONNECTIONS, GATES, INPUTS, or OUTPUTS
+    QString gateName = getText();
+
+    QString gateDefinition = "";
+    gateDefinition += gateName + "\r\n";
+
+
+    return gateName;
+}
+
+QString BlackBoxWindow::getText()
+{
+    QString text;
+
+    do {
+        QEventLoop textLoop;
+        connect(ui->textInput, SIGNAL(returnPressed()), &textLoop, SLOT(quit()));
+        textLoop.exec();
+        text = ui->textInput->text();
+    } while(!isValid(text));
+
+    ui->textInput->clear();
+    return text;
+}
+
+bool BlackBoxWindow::isValid(QString str)
+{
+    if(str.contains("CONNECTIONS") || str.contains("GATES") || str.contains("INPUTS") || str.contains("OUTPUTS")) {
+        return false;
+    }
+
+    if(str.contains("AND") || str.contains("OR") || str.contains("NOT") || str.contains("DFLIPFLOP") || str.contains("INPUT") || str.contains("M_INPUT") || str.contains("OUTPUT")){
+        return false;
+    }
+
+    if(str[0] == '_' || str.contains("~") || str.contains("#") || str.contains("%") || str.contains("&") || str.contains("*") || str.contains("{") || str.contains("}") || str.contains("\\") || str.contains(".") || str.contains(":") || str.contains("<") || str.contains(">") || str.contains("?") || str.contains("/") || str.contains("+") || str.contains("|") || str.contains("\"")) {
+        return false;
+    }
+    return true;
 }
 
 void BlackBoxWindow::on_zoomInButton_clicked()
