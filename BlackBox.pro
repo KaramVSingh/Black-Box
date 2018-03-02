@@ -40,7 +40,8 @@ SOURCES += \
     gates/decoder.cpp \
     gates/encoder.cpp \
     gates/dflipflop.cpp \
-    blackboxwindow.cpp
+    blackboxwindow.cpp \
+    gates/customgate.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -59,7 +60,8 @@ HEADERS += \
     gates/decoder.h \
     gates/encoder.h \
     gates/dflipflop.h \
-    blackboxwindow.h
+    blackboxwindow.h \
+    gates/customgate.h
 
 FORMS += \
         mainwindow.ui \

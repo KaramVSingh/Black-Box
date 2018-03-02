@@ -227,6 +227,12 @@ void Field::placeGate(QPoint location)
         DFlipFlop* newD = new DFlipFlop(location);
         dflipflops.append(newD);
         gates.append(newD);
+    } else {
+        CustomGate* newC = new CustomGate(location);
+        if(newC->build(toolData + ".bb")) {
+            dflipflops.append(newC->getAllDFlipFlops());
+            gates.append(newC);
+        }
     }
 }
 

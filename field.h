@@ -22,6 +22,7 @@
 #include "gates/decoder.h"
 #include "gates/encoder.h"
 #include "gates/dflipflop.h"
+#include "gates/customgate.h"
 
 namespace Ui {
 class Field;

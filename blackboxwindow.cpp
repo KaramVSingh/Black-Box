@@ -161,7 +161,7 @@ bool BlackBoxWindow::isValid(QString str)
         return false;
     }
 
-    if(str.contains("AND") || str.contains("OR") || str.contains("NOT") || str.contains("DFLIPFLOP") || str.contains("INPUT") || str.contains("M_INPUT") || str.contains("OUTPUT")){
+    if(str.contains("AND") || str.contains("OR") || str.contains("NOT") || str.contains("DFLIPFLOP") || str.contains("INPUT") || str.contains("M_INPUT") || str.contains("OUTPUT") || str.contains("DECODER") || str.contains("ENCODER")){
         return false;
     }
 
