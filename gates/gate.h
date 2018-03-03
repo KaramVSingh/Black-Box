@@ -38,7 +38,7 @@ public:
     int numberOfInputLines;
 
     // this QVector will store all of the output gates and the outputs they are connected to (otherIndexes)
-    QVector<Connection> outputs;
+    QVector<QList<Connection>> outputs;
     int numberOfOutputLines;
 
     QVector<int> takenInputs;

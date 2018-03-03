@@ -67,6 +67,7 @@ void BlackBoxWindow::paintEvent(QPaintEvent *event)
     paint.setPen(pen);
 
     paint.fillRect(0, 0, this->width(), this->height(), Qt::white);
+
     for(int i = 0; i < gates.size(); i++) {
         if(!gates[i]->render) {
             continue;
@@ -97,6 +98,12 @@ void BlackBoxWindow::paintEvent(QPaintEvent *event)
         for(int j = 0; j < wires[i]->vertices.size() - 1; j++) {
             paint.drawLine((wires[i]->vertices[j] - topLeftLocation) * zoom, (wires[i]->vertices[j + 1] - topLeftLocation) * zoom);
         }
+    }
+
+    paint.setPen(pen);
+
+    if(showRect) {
+        paint.drawRect((focusPoint.x() - 4 - topLeftLocation.x()) * zoom, (focusPoint.y() - 4 - topLeftLocation.y()) * zoom, 8 * zoom, 8 * zoom);
     }
 }
 
@@ -132,12 +139,179 @@ QString BlackBoxWindow::execute()
     // first thing we need to do is get the name of the new gate.
     // it cannot be a keyword so it can not be CONNECTIONS, GATES, INPUTS, or OUTPUTS
     QString gateName = getText();
+    QString fileName = gateName + ".bb";
+
+    QVector<Gate*> fullGates;
 
     QString gateDefinition = "";
-    gateDefinition += gateName + "\r\n";
+    gateDefinition += "GATES = ";
 
+    // we want to create an array of basic gates
+    for(int i = 0; i < gates.size(); i++) {
+        if(gates[i]->toType() != GateType::CUSTOM) {
+            fullGates.append(gates[i]);
+        } else {
+            CustomGate* gate = static_cast<CustomGate*>(gates[i]);
+            fullGates.append(gate->internalGates);
+        }
+    }
+
+    gateDefinition += QString::number(fullGates.size()) + ":\r\n";
+
+    for(int i = 0; i < fullGates.size(); i++) {
+        gateDefinition += QString::number(i) + ". " + fullGates[i]->toString() + "\r\n";
+    }
+
+    gateDefinition += "~\r\n";
+    gateDefinition += "CONNECTIONS:\r\n";
+
+    for(int i = 0; i < fullGates.size(); i++) {
+        for(int j = 0; j < fullGates[i]->takenInputs.size(); j++) {
+            int inputIndex = fullGates[i]->takenInputs[j];
+            Gate::Connection inputConnection = fullGates[i]->inputs[inputIndex];
+            if(fullGates.contains(inputConnection.gate)) {
+                gateDefinition += QString::number(fullGates.indexOf(inputConnection.gate)) + ",";
+                gateDefinition += QString::number(inputConnection.otherIndex) + " -> ";
+                gateDefinition += QString::number(i) + "," + QString::number(inputIndex) + "\r\n";
+            }
+        }
+    }
+
+    gateDefinition += "~\r\n";
+    gateDefinition += "INPUTS = ";
+    QString inputsString = "";
+
+    int numberOfInputs = 0;
+    for(int i = 0; i < fullGates.size(); i++) {
+        for(int j = 0; j < fullGates[i]->numberOfInputLines; j++) {
+            if(fullGates[i]->takenInputs.contains(j)) {
+                if(!fullGates.contains(fullGates[i]->inputs[j].gate)) {
+                    // we need to look at all of the outputs for the inputs so as to see if we have
+                    // already looked at this input
+                    int indexOfThisOutput = fullGates[i]->inputs[i].otherIndex;
+                    QList<Gate::Connection> outsOfIn = fullGates[i]->inputs[j].gate->outputs[indexOfThisOutput];
+
+                    bool hasBeenHandled = false;
+                    // the list contains every output of the gate that is connected to that point
+                    for(int k = 0; k < i; k++) {
+                        if(fullGates.contains(outsOfIn[k].gate)) {
+                            hasBeenHandled = true;
+                            break;
+                        } else {
+                            continue;
+                        }
+                    }
+
+                    if(!hasBeenHandled) {
+                        QString name = focusAndGetText(fullGates[i], j, true);
+
+                        if(name == "") {
+                            continue;
+                        }
+
+                        inputsString += QString::number(numberOfInputs++) + ". " + name + "~";
+                        for(int k = 0; k < outsOfIn.size(); k++) {
+                            if(fullGates.contains(outsOfIn[k].gate)) {
+                                inputsString += " -> " + QString::number(fullGates.indexOf(outsOfIn[k].gate)) + "," + QString::number(outsOfIn[k].otherIndex);
+                            }
+                        }
+
+                        inputsString += "~\r\n";
+                    }
+                }
+            } else {
+                // there is nothing connected to this port therefore it is an input.
+                // we have two options, ignore it and not add it or add it.
+                // it can only possibly be connected to this gate
+                QString name = focusAndGetText(fullGates[i], j, true);
+
+                if(name == "") {
+                    continue;
+                }
+
+                inputsString += QString::number(numberOfInputs++) + ". ";
+                inputsString += name + "~ -> " + QString::number(i) + "," + QString::number(j) + "~\r\n";
+            }
+        }
+    }
+
+    inputsString += "~\r\n";
+    gateDefinition += QString::number(numberOfInputs) + ":\r\n" + inputsString;
+
+    gateDefinition += "OUTPUTS = ";
+    QString outputsString = "";
+    int numberOfOutputs = 0;
+
+    for(int i = 0; i < fullGates.size(); i++) {
+        for(int j = 0; j < fullGates[i]->outputs.size(); j++) {
+            if(fullGates[i]->takenOutputs.contains(j)) {
+                for(int k = 0; k < fullGates[i]->outputs[j].size(); k++) {
+                    Gate::Connection outs = fullGates[i]->outputs[j][k];
+                    if(fullGates.contains(outs.gate)) {
+                        if(outs.gate->toType() == GateType::OUTPUT) {
+                            // we are elligible to add an output here:
+                            QString name = focusAndGetText(fullGates[i], j, false);
+
+                            if(name == "") {
+                                continue;
+                            }
+
+                            outputsString += QString::number(numberOfOutputs++) + ". " + name + "~ <- " + QString::number(i) + "," + QString::number(j) + "\r\n";
+                        } else {
+                            continue;
+                        }
+                    } else {
+                        // we are elligible to add an output here:
+                        QString name = focusAndGetText(fullGates[i], j, false);
+
+                        if(name == "") {
+                            continue;
+                        }
+
+                        outputsString += QString::number(numberOfOutputs++) + ". " + name + "~ <- " + QString::number(i) + "," + QString::number(j) + "\r\n";
+                    }
+                }
+            } else {
+                // we are elligible to add an output here:
+                QString name = focusAndGetText(fullGates[i], j, false);
+
+                if(name == "") {
+                    continue;
+                }
+
+                outputsString += QString::number(numberOfOutputs++) + ". " + name + "~ <- " + QString::number(i) + "," + QString::number(j) + "\r\n";
+            }
+        }
+    }
+
+    outputsString += "~";
+    gateDefinition += QString::number(numberOfOutputs) + ":\r\n" + outputsString;
+
+
+    QString dir(QFileInfo(".").absolutePath());
+    dir.append("/BlackBox/CustomGates/");
+    dir += fileName;
+
+    QFile file(dir);
+    file.open(QIODevice::ReadWrite);
+    QTextStream stream(&file);
+    stream << gateDefinition;
+
+    file.close();
 
     return gateName;
+}
+
+QString BlackBoxWindow::focusAndGetText(Gate *gate, int index, bool isInput) {
+    QPoint focus = isInput ? gate->getInputLocations()[index] : gate->getOutputLocations()[index];
+    focusPoint = focus;
+    showRect = true;
+
+    topLeftLocation.setX((int)(focus.x() - width() / 2 / zoom));
+    topLeftLocation.setY((int)(focus.y() - height() / 2 / zoom));
+
+    update();
+    return getText();
 }
 
 QString BlackBoxWindow::getText()

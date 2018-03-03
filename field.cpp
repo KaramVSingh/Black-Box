@@ -284,8 +284,8 @@ void Field::drawWire(QPoint point)
                                 Gate* outputOfWire = currentWire->output.gate;
                                 int outputOfWireIndex = currentWire->output.otherIndex;
 
-                                inputOfWire->addOutput(outputOfWire, inputOfWireIndex, outputOfWireIndex);
                                 outputOfWire->addInput(inputOfWire, outputOfWireIndex, inputOfWireIndex);
+                                inputOfWire->addOutput(outputOfWire, inputOfWireIndex, outputOfWireIndex);
                                 return;
                             }
 
@@ -304,8 +304,8 @@ void Field::drawWire(QPoint point)
                                 Gate* outputOfWire = currentWire->output.gate;
                                 int outputOfWireIndex = currentWire->output.otherIndex;
 
-                                inputOfWire->addOutput(outputOfWire, inputOfWireIndex, outputOfWireIndex);
                                 outputOfWire->addInput(inputOfWire, outputOfWireIndex, inputOfWireIndex);
+                                inputOfWire->addOutput(outputOfWire, inputOfWireIndex, outputOfWireIndex);
                                 return;
                             }
 
@@ -347,8 +347,8 @@ void Field::drawWire(QPoint point)
                                 Gate* outputOfWire = currentWire->output.gate;
                                 int outputOfWireIndex = currentWire->output.otherIndex;
 
-                                inputOfWire->addOutput(outputOfWire, inputOfWireIndex, outputOfWireIndex);
                                 outputOfWire->addInput(inputOfWire, outputOfWireIndex, inputOfWireIndex);
+                                inputOfWire->addOutput(outputOfWire, inputOfWireIndex, outputOfWireIndex);
                                 return;
                             }
 
@@ -367,8 +367,8 @@ void Field::drawWire(QPoint point)
                                 Gate* outputOfWire = currentWire->output.gate;
                                 int outputOfWireIndex = currentWire->output.otherIndex;
 
-                                inputOfWire->addOutput(outputOfWire, inputOfWireIndex, outputOfWireIndex);
                                 outputOfWire->addInput(inputOfWire, outputOfWireIndex, inputOfWireIndex);
+                                inputOfWire->addOutput(outputOfWire, inputOfWireIndex, outputOfWireIndex);
                                 return;
                             }
 
@@ -406,8 +406,8 @@ void Field::drawWire(QPoint point)
                             Gate* outputOfWire = currentWire->output.gate;
                             int outputOfWireIndex = currentWire->output.otherIndex;
 
-                            inputOfWire->addOutput(outputOfWire, inputOfWireIndex, outputOfWireIndex);
                             outputOfWire->addInput(inputOfWire, outputOfWireIndex, inputOfWireIndex);
+                            inputOfWire->addOutput(outputOfWire, inputOfWireIndex, outputOfWireIndex);
                             return;
                         }
 
@@ -426,8 +426,8 @@ void Field::drawWire(QPoint point)
                             Gate* outputOfWire = currentWire->output.gate;
                             int outputOfWireIndex = currentWire->output.otherIndex;
 
-                            inputOfWire->addOutput(outputOfWire, inputOfWireIndex, outputOfWireIndex);
                             outputOfWire->addInput(inputOfWire, outputOfWireIndex, inputOfWireIndex);
+                            inputOfWire->addOutput(outputOfWire, inputOfWireIndex, outputOfWireIndex);
                             return;
                         }
 

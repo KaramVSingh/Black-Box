@@ -59,7 +59,7 @@ bool Encoder::addOutput(Gate* newGate, int thisIndex, int otherIndex)
     Connection newConnection;
     newConnection.gate = newGate;
     newConnection.otherIndex = otherIndex;
-    outputs[thisIndex] = newConnection;
+    outputs[thisIndex].append(newConnection);
 
     return true;
 }

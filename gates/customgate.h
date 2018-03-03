@@ -42,10 +42,10 @@ public:
     QVector<GateToGateConnection> rawConnections;
     QVector<QList<PointToGateConnection>> rawInputs;
     QVector<PointToGateConnection> rawOutputs;
+    QVector<Gate*> internalGates;
 
 
 private:
-    QVector<Gate*> internalGates;
     QVector<QList<Gate::Connection>> inputPointers;
     QVector<Gate::Connection> outputPointers;
     QVector<DFlipFlop*> dFlipFlops;

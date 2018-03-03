@@ -6,8 +6,10 @@
 #include <QPoint>
 #include <QMouseEvent>
 #include <QEventLoop>
+#include <QRect>
 
 #include "gates/gate.h"
+#include "gates/customgate.h"
 #include "wire.h"
 #include "detail.h"
 
@@ -38,6 +40,7 @@ private:
     void mouseReleaseEvent(QMouseEvent* event);
     bool isValid(QString str);
     QString getText();
+    QString focusAndGetText(Gate* gate, int index, bool isInput);
     QPoint getFieldLocation(QPoint);
     QPoint startingPoint;
     Ui::BlackBoxWindow *ui;
@@ -46,6 +49,8 @@ private:
     QPoint topLeftLocation;
     float zoom = 1;
     Mode tool;
+    QPoint focusPoint;
+    bool showRect = false;
 
 };
 

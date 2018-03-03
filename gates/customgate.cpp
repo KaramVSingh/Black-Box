@@ -349,10 +349,14 @@ bool CustomGate::addOutput(Gate* newGate, int thisIndex, int otherIndex)
     Connection newConnection;
     newConnection.gate = newGate;
     newConnection.otherIndex = otherIndex;
-    outputs[thisIndex] = newConnection;
+    outputs[thisIndex].append(newConnection);
 
     // we dont want to add the outputs of gates to an outputPointers list because it is unnesesary
     // and because we dont want 2 outputs going to one wire as a matter of semantics
+    // we do want to connect the gate straight to the input so execute is neve called
+    newGate->inputs[otherIndex].gate = outputPointers[thisIndex].gate;
+    newGate->inputs[otherIndex].otherIndex = outputPointers[thisIndex].otherIndex;
+    outputPointers[thisIndex].gate->addOutput(newGate, thisIndex, otherIndex);
 
     return true;
 }
