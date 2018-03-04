@@ -56,6 +56,9 @@ bool Encoder::addOutput(Gate* newGate, int thisIndex, int otherIndex)
     // gates connected to a single output port
 
     takenOutputs.append(thisIndex);
+    if(newGate->toType() == GateType::CUSTOM) {
+        return true;
+    }
     Connection newConnection;
     newConnection.gate = newGate;
     newConnection.otherIndex = otherIndex;

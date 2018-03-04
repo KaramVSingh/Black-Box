@@ -57,6 +57,9 @@ bool Decoder::addOutput(Gate *newGate, int thisIndex, int otherIndex)
     }
 
     takenOutputs.append(thisIndex);
+    if(newGate->toType() == GateType::CUSTOM) {
+        return true;
+    }
     Connection newConnection;
     newConnection.gate = newGate;
     newConnection.otherIndex = otherIndex;

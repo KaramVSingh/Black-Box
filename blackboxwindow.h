@@ -34,7 +34,6 @@ private slots:
     void on_zoomOutButton_clicked();
 
 private:
-
     void paintEvent(QPaintEvent* event);
     void mousePressEvent(QMouseEvent* event);
     void mouseReleaseEvent(QMouseEvent* event);
@@ -51,6 +50,7 @@ private:
     Mode tool;
     QPoint focusPoint;
     bool showRect = false;
+    QVector<QVector<Gate*>> blackBoxGates;
 
 };
 

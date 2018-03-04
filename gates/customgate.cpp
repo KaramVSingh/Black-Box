@@ -331,6 +331,13 @@ bool CustomGate::addInput(Gate* newGate, int thisIndex, int otherIndex)
         connection.gate->addInput(newGate, connection.otherIndex, otherIndex);
     }
 
+    for(int i = 0; i < inputPointers[thisIndex].size(); i++) {
+        Gate::Connection newCon;
+        newCon.gate = inputPointers[thisIndex][i].gate;
+        newCon.otherIndex = inputPointers[thisIndex][i].otherIndex;
+        newGate->outputs[otherIndex].append(newCon);
+    }
+
     return true;
 }
 
@@ -356,7 +363,7 @@ bool CustomGate::addOutput(Gate* newGate, int thisIndex, int otherIndex)
     // we do want to connect the gate straight to the input so execute is neve called
     newGate->inputs[otherIndex].gate = outputPointers[thisIndex].gate;
     newGate->inputs[otherIndex].otherIndex = outputPointers[thisIndex].otherIndex;
-    outputPointers[thisIndex].gate->addOutput(newGate, thisIndex, otherIndex);
+    outputPointers[thisIndex].gate->addOutput(newGate, outputPointers[thisIndex].otherIndex, otherIndex);
 
     return true;
 }

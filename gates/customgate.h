@@ -43,11 +43,11 @@ public:
     QVector<QList<PointToGateConnection>> rawInputs;
     QVector<PointToGateConnection> rawOutputs;
     QVector<Gate*> internalGates;
+    QVector<QList<Gate::Connection>> inputPointers;
+    QVector<Gate::Connection> outputPointers;
 
 
 private:
-    QVector<QList<Gate::Connection>> inputPointers;
-    QVector<Gate::Connection> outputPointers;
     QVector<DFlipFlop*> dFlipFlops;
     QImage gateImage;
     QString gateName;

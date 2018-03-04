@@ -153,6 +153,7 @@ QString BlackBoxWindow::execute()
         } else {
             CustomGate* gate = static_cast<CustomGate*>(gates[i]);
             fullGates.append(gate->internalGates);
+            blackBoxGates.append(gate->internalGates);
         }
     }
 
@@ -188,9 +189,8 @@ QString BlackBoxWindow::execute()
                 if(!fullGates.contains(fullGates[i]->inputs[j].gate)) {
                     // we need to look at all of the outputs for the inputs so as to see if we have
                     // already looked at this input
-                    int indexOfThisOutput = fullGates[i]->inputs[i].otherIndex;
+                    int indexOfThisOutput = fullGates[i]->inputs[j].otherIndex;
                     QList<Gate::Connection> outsOfIn = fullGates[i]->inputs[j].gate->outputs[indexOfThisOutput];
-
                     bool hasBeenHandled = false;
                     // the list contains every output of the gate that is connected to that point
                     for(int k = 0; k < i; k++) {
@@ -303,6 +303,49 @@ QString BlackBoxWindow::execute()
 }
 
 QString BlackBoxWindow::focusAndGetText(Gate *gate, int index, bool isInput) {
+    bool isInBlackBox;
+    int blackBoxNumber;
+
+    for(int i = 0; i < blackBoxGates.size(); i++) {
+        if(blackBoxGates[i].contains(gate)) {
+            isInBlackBox = true;
+            blackBoxNumber = i;
+        }
+    }
+
+    if(isInBlackBox) {
+        int num = 0;
+        for(int i = 0; i < gates.size(); i++) {
+            if(gates[i]->toType() == GateType::CUSTOM) {
+                if(num == blackBoxNumber) {
+                    CustomGate* customGate = static_cast<CustomGate*>(gates[i]);
+                    if(isInput) {
+                        for(int j = 0; j < customGate->inputPointers.size(); j++) {
+                            for(int k = 0; k < customGate->inputPointers[j].size(); k++) {
+                                if(customGate->inputPointers[j][k].gate == gate) {
+                                    if(customGate->inputPointers[j][k].otherIndex == index) {
+                                        index = j;
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        for(int j = 0; j < customGate->outputPointers.size(); j++) {
+                            if(customGate->outputPointers[j].gate == gate) {
+                                if(customGate->outputPointers[j].otherIndex == index) {
+                                    index = j;
+                                }
+                            }
+                        }
+                    }
+                    gate = gates[i];
+                    break;
+                }
+                num++;
+            }
+        }
+    }
+
     QPoint focus = isInput ? gate->getInputLocations()[index] : gate->getOutputLocations()[index];
     focusPoint = focus;
     showRect = true;
