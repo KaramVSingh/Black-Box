@@ -183,6 +183,7 @@ QString BlackBoxWindow::execute()
     QString inputsString = "";
 
     int numberOfInputs = 0;
+    QVector<Gate::Connection> handledOpenBlackBoxPort;
     for(int i = 0; i < fullGates.size(); i++) {
         for(int j = 0; j < fullGates[i]->numberOfInputLines; j++) {
             if(fullGates[i]->takenInputs.contains(j)) {
@@ -223,14 +224,89 @@ QString BlackBoxWindow::execute()
                 // there is nothing connected to this port therefore it is an input.
                 // we have two options, ignore it and not add it or add it.
                 // it can only possibly be connected to this gate
-                QString name = focusAndGetText(fullGates[i], j, true);
 
-                if(name == "") {
-                    continue;
+                int blackBoxNumber;
+                bool isInBlackBox;
+                // we have to also set all of the inputs connected to the same port if that is an issue
+                for(int k = 0; k < blackBoxGates.size(); k++) {
+                    if(blackBoxGates[k].contains(fullGates[i])) {
+                        isInBlackBox = true;
+                        blackBoxNumber = k;
+                    }
                 }
 
-                inputsString += QString::number(numberOfInputs++) + ". ";
-                inputsString += name + "~ -> " + QString::number(i) + "," + QString::number(j) + "~\r\n";
+                if(isInBlackBox) {
+                    // the we need to apply the change we make to this input to all of the input ports
+
+                    // we need all of the gates connected to this port
+                    int num = 0;
+                    for(int k = 0; k < gates.size(); k++) {
+                        if(gates[k]->toType() == GateType::CUSTOM) {
+                            if(num == blackBoxNumber) {
+                                CustomGate* tempGate = static_cast<CustomGate*>(gates[k]);
+
+                                int portIndex = 0;
+                                for(int l = 0; l < tempGate->inputPointers.size(); l++) {
+                                    for(int r = 0; r < tempGate->inputPointers[l].size(); r++) {
+                                        if(tempGate->inputPointers[l][r].gate == fullGates[i]) {
+                                            if(tempGate->inputPointers[l][r].otherIndex == j) {
+                                                portIndex = l;
+                                            }
+                                        }
+                                    }
+                                }
+
+                                QList<Gate::Connection> port = tempGate->inputPointers[portIndex];
+                                // we should add input for all of these
+
+                                bool alreadyHandled = false;
+                                for(int l = 0; l < handledOpenBlackBoxPort.size(); l++) {
+                                    if(handledOpenBlackBoxPort[l].gate == port[0].gate) {
+                                        if(handledOpenBlackBoxPort[l].otherIndex == port[0].otherIndex) {
+                                            alreadyHandled = true;
+                                            break;
+                                        }
+                                    }
+                                }
+
+                                if(alreadyHandled) {
+                                    break;
+                                }
+
+                                QString name = focusAndGetText(fullGates[i], j, true);
+                                inputsString += QString::number(numberOfInputs++) + ". ";
+                                inputsString += name + "~";
+
+                                if(name == "") {
+                                    continue;
+                                }
+
+                                for(int l = 0; l < port.size(); l++) {
+                                    inputsString += " -> " + QString::number(fullGates.indexOf(port[l].gate)) + "," + QString::number(port[l].otherIndex);
+                                    Gate::Connection handledOpenPort;
+                                    handledOpenPort.gate = port[l].gate;
+                                    handledOpenPort.otherIndex = port[l].otherIndex;
+                                    handledOpenBlackBoxPort.append(handledOpenPort);
+                                }
+
+                                inputsString += "~\r\n";
+                                break;
+                            } else {
+                                num++;
+                            }
+                        }
+                    }
+
+                } else {
+                    QString name = focusAndGetText(fullGates[i], j, true);
+
+                    if(name == "") {
+                        continue;
+                    }
+
+                    inputsString += QString::number(numberOfInputs++) + ". ";
+                    inputsString += name + "~ -> " + QString::number(i) + "," + QString::number(j) + "~\r\n";
+                }
             }
         }
     }

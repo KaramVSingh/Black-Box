@@ -27,7 +27,8 @@ bool CustomGate::build(QString fileName)
     index += 2;
 
     for(int i = 0; i < numberOfGates; i++) {
-        index += 3;
+        getInt(content, &index);
+        index += 2;
         QString gateName = getWord(content, &index);
         rawGateNames.append(gateName);
         if(gateName == "AND") {
@@ -101,7 +102,8 @@ bool CustomGate::build(QString fileName)
     QVector<QString> inputNames;
 
     for(int i = 0; i < numberOfInputs; i++) {
-        index += 3;
+        getInt(content, &index);
+        index += 2;
         inputNames.append(getWord(content, &index));
         // we have to determine if this a multi bit input based on the gate that it is connected to
         index++;
@@ -148,7 +150,8 @@ bool CustomGate::build(QString fileName)
     QVector<QString> outputNames;
 
     for(int i = 0; i < numberOfOutputs; i++) {
-        index += 3;
+        getInt(content, &index);
+        index += 2;
         outputNames.append(getWord(content, &index));
         index += 5;
         int gateNumber = getInt(content, &index);
@@ -327,15 +330,32 @@ bool CustomGate::addInput(Gate* newGate, int thisIndex, int otherIndex)
     newConnection.otherIndex = otherIndex;
     inputs[thisIndex] = newConnection;
 
-    foreach(Gate::Connection connection, inputPointers[thisIndex]) {
-        connection.gate->addInput(newGate, connection.otherIndex, otherIndex);
-    }
+    if(newGate->toType() == GateType::CUSTOM) {
+        CustomGate* temp = static_cast<CustomGate*>(newGate);
+        for(int i = 0; i < inputPointers[thisIndex].size(); i++) {
+            Gate::Connection newCon;
+            newCon.gate = inputPointers[thisIndex][i].gate;
+            newCon.otherIndex = inputPointers[thisIndex][i].otherIndex;
+            temp->outputPointers[otherIndex].gate->addOutput(newCon.gate, temp->outputPointers[otherIndex].otherIndex, newCon.otherIndex);
+        }
 
-    for(int i = 0; i < inputPointers[thisIndex].size(); i++) {
-        Gate::Connection newCon;
-        newCon.gate = inputPointers[thisIndex][i].gate;
-        newCon.otherIndex = inputPointers[thisIndex][i].otherIndex;
-        newGate->outputs[otherIndex].append(newCon);
+        foreach(Gate::Connection connection, inputPointers[thisIndex]) {
+            connection.gate->addInput(temp->outputPointers[otherIndex].gate, connection.otherIndex, temp->outputPointers[otherIndex].otherIndex);
+        }
+
+    } else {
+        // this goes into new gate and connects in to the cutom gate
+        for(int i = 0; i < inputPointers[thisIndex].size(); i++) {
+            Gate::Connection newCon;
+            newCon.gate = inputPointers[thisIndex][i].gate;
+            newCon.otherIndex = inputPointers[thisIndex][i].otherIndex;
+            newGate->outputs[otherIndex].append(newCon);
+        }
+
+        foreach(Gate::Connection connection, inputPointers[thisIndex]) {
+            connection.gate->addInput(newGate, connection.otherIndex, otherIndex);
+        }
+
     }
 
     return true;
@@ -353,17 +373,25 @@ bool CustomGate::addOutput(Gate* newGate, int thisIndex, int otherIndex)
     // gates connected to a single output port
 
     takenOutputs.append(thisIndex);
+
+    newGate->inputs[otherIndex].gate = outputPointers[thisIndex].gate;
+    newGate->inputs[otherIndex].otherIndex = outputPointers[thisIndex].otherIndex;
+    outputPointers[thisIndex].gate->addOutput(newGate, outputPointers[thisIndex].otherIndex, otherIndex);
+
+
+    // we dont want to add the outputs of gates to an outputPointers list because it is unnesesary
+    // and because we dont want 2 outputs going to one wire as a matter of semantics
+    // we do want to connect the gate straight to the input so execute is neve called
+
+    if(newGate->toType() == GateType::CUSTOM) {
+        return true;
+    }
+
     Connection newConnection;
     newConnection.gate = newGate;
     newConnection.otherIndex = otherIndex;
     outputs[thisIndex].append(newConnection);
 
-    // we dont want to add the outputs of gates to an outputPointers list because it is unnesesary
-    // and because we dont want 2 outputs going to one wire as a matter of semantics
-    // we do want to connect the gate straight to the input so execute is neve called
-    newGate->inputs[otherIndex].gate = outputPointers[thisIndex].gate;
-    newGate->inputs[otherIndex].otherIndex = outputPointers[thisIndex].otherIndex;
-    outputPointers[thisIndex].gate->addOutput(newGate, outputPointers[thisIndex].otherIndex, otherIndex);
 
     return true;
 }
