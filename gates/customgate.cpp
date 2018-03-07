@@ -160,7 +160,7 @@ bool CustomGate::build(QString fileName)
         index++;
 
         if(!multiBitOutputs.contains(i)) {
-            if(internalGates[i]->toType() == GateType::ENCODER) {
+            if(internalGates[gateNumber]->toType() == GateType::ENCODER) {
                 multiBitOutputs.append(i);
             }
         }

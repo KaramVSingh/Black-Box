@@ -123,7 +123,7 @@ GateType Encoder::toType()
 
 QString Encoder::toString()
 {
-    return "ENCODER" + numberOfBits;
+    return "ENCODER" + QString::number(numberOfBits);
 }
 
 void Encoder::setNumberOfBits(int numberOfBits)

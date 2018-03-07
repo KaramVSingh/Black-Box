@@ -50,9 +50,9 @@ bool Decoder::addInput(Gate* newGate, int thisIndex, int otherIndex)
 
 bool Decoder::addOutput(Gate *newGate, int thisIndex, int otherIndex)
 {
-    if(takenOutputs.contains(thisIndex)) {
+    if(thisIndex >= numberOfOutputLines) {
         // in this case the new gate is being connected to an existing input
-        qDebug() << "DECODER Gate adding to taken output index";
+        qDebug() << "DECODER Gate adding to illegal output index";
         return false;
     }
 
@@ -124,7 +124,7 @@ GateType Decoder::toType()
 
 QString Decoder::toString()
 {
-    return "DECODER" + numberOfBits;
+    return "DECODER" + QString::number(numberOfBits);
 }
 
 void Decoder::setNumberOfBits(int numberOfBits)

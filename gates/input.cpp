@@ -101,7 +101,7 @@ GateType Input::toType()
 
 QString Input::toString()
 {
-    return "INPUT" + value;
+    return "INPUT" + QString::number(value);
 }
 
 void Input::setMultiBit(bool flag)
