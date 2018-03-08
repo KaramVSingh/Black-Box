@@ -6,7 +6,15 @@ BlackBoxWindow::BlackBoxWindow(QVector<Gate*> gates, QVector<Wire*> wires, QWidg
     ui(new Ui::BlackBoxWindow)
 {
     ui->setupUi(this);
-    topLeftLocation = QPoint(0, 0);
+    QPoint topLeftGate(std::numeric_limits<int>::max(), std::numeric_limits<int>::max());
+    foreach(Gate* g, gates) {
+        if(g->location.x() < topLeftGate.x() && g->location.y() < topLeftGate.y()) {
+            topLeftGate = g->location;
+        }
+    }
+
+    topLeftGate -= QPoint(48, 48);
+    topLeftLocation = topLeftGate;
     this->gates = gates;
     this->wires = wires;
     update();
@@ -183,6 +191,7 @@ QString BlackBoxWindow::execute()
     QString inputsString = "";
 
     int numberOfInputs = 0;
+    QVector<Gate*> inputsChecked;
     QVector<Gate::Connection> handledOpenBlackBoxPort;
     for(int i = 0; i < fullGates.size(); i++) {
         for(int j = 0; j < fullGates[i]->numberOfInputLines; j++) {
@@ -194,16 +203,13 @@ QString BlackBoxWindow::execute()
                     QList<Gate::Connection> outsOfIn = fullGates[i]->inputs[j].gate->outputs[indexOfThisOutput];
                     bool hasBeenHandled = false;
                     // the list contains every output of the gate that is connected to that point
-                    for(int k = 0; k < i; k++) {
-                        if(fullGates.contains(outsOfIn[k].gate)) {
-                            hasBeenHandled = true;
-                            break;
-                        } else {
-                            continue;
-                        }
+                    if(inputsChecked.contains(fullGates[i]->inputs[j].gate)) {
+                        hasBeenHandled = true;
+                        break;
                     }
 
                     if(!hasBeenHandled) {
+                        inputsChecked.append(fullGates[i]->inputs[j].gate);
                         QString name = focusAndGetText(fullGates[i], j, true);
 
                         if(name == "") {
