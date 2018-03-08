@@ -30,7 +30,6 @@ bool CustomGate::build(QString fileName)
         getInt(content, &index);
         index += 2;
         QString gateName = getWord(content, &index);
-        rawGateNames.append(gateName);
         if(gateName == "AND") {
             And* g = new And(QPoint(std::numeric_limits<int>::max(), std::numeric_limits<int>::max()));
             internalGates.append(g);
@@ -78,13 +77,6 @@ bool CustomGate::build(QString fileName)
         index++;
         gateTwoNode = getInt(content, &index);
 
-        GateToGateConnection raw;
-        raw.startGate = gateOne;
-        raw.endGate = gateTwo;
-        raw.startIndex = gateOneNode;
-        raw.endIndex = gateTwoNode;
-        rawConnections.append(raw);
-
         internalGates[gateTwo]->addInput(internalGates[gateOne], gateTwoNode, gateOneNode);
         internalGates[gateOne]->addOutput(internalGates[gateTwo], gateOneNode, gateTwoNode);
         index++;
@@ -96,7 +88,6 @@ bool CustomGate::build(QString fileName)
     numberOfInputLines = numberOfInputs;
     inputPointers.resize(numberOfInputs);
     inputs.resize(numberOfInputs);
-    rawInputs.resize(numberOfInputs);
     index += 2;
 
     QVector<QString> inputNames;
@@ -125,12 +116,6 @@ bool CustomGate::build(QString fileName)
             Gate::Connection input;
             input.gate = internalGates[gateNumber];
             input.otherIndex = gateIndex;
-
-            PointToGateConnection raw;
-            raw.name = inputNames[inputNames.size() - 1];
-            raw.gateNumber = gateNumber;
-            raw.connectionIndex = gateIndex;
-            rawInputs[i].append(raw);
 
             inputPointers[i].append(input);
         }
@@ -168,13 +153,6 @@ bool CustomGate::build(QString fileName)
         Gate::Connection output;
         output.gate = internalGates[gateNumber];
         output.otherIndex = gateIndex;
-
-
-        PointToGateConnection raw;
-        raw.name = outputNames[outputNames.size() - 1];
-        raw.gateNumber = gateNumber;
-        raw.connectionIndex = gateIndex;
-        rawOutputs.append(raw);
 
         outputPointers[i] = output;
     }

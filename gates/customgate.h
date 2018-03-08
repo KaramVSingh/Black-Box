@@ -38,10 +38,6 @@ public:
     QString toString();
     bool build(QString fileName);
     QVector<DFlipFlop*> getAllDFlipFlops();
-    QVector<QString> rawGateNames;
-    QVector<GateToGateConnection> rawConnections;
-    QVector<QList<PointToGateConnection>> rawInputs;
-    QVector<PointToGateConnection> rawOutputs;
     QVector<Gate*> internalGates;
     QVector<QList<Gate::Connection>> inputPointers;
     QVector<Gate::Connection> outputPointers;
