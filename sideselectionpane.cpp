@@ -48,6 +48,7 @@ void SideSelectionPane::refreshGates()
     ui->comboBox->addItem("M_INPUT");
     ui->comboBox->addItem("OUTPUT");
     ui->comboBox->addItem("DFLIPFLOP");
+    ui->comboBox->addItem("CLOCK");
 
     foreach(QString gate, customGates) {
         QString name = gate.split(".")[0];
@@ -84,4 +85,9 @@ void SideSelectionPane::on_encoderBits_returnPressed()
 void SideSelectionPane::on_boxButton_clicked()
 {
     emit toolChanged(Mode::blackBox, "");
+}
+
+void SideSelectionPane::on_frequencySlider_sliderMoved(int position)
+{
+    emit frequencyChanged(position);
 }

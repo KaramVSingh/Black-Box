@@ -26,6 +26,7 @@ public:
 
 signals:
     void toolChanged(Mode, QString);
+    void frequencyChanged(int);
 
 public slots:
     void refreshGates();
@@ -42,6 +43,8 @@ private slots:
     void on_encoderBits_returnPressed();
 
     void on_boxButton_clicked();
+
+    void on_frequencySlider_sliderMoved(int position);
 
 private:
     Ui::SideSelectionPane *ui;

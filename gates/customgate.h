@@ -10,6 +10,7 @@
 #include "not.h"
 #include "or.h"
 #include "output.h"
+#include "clock.h"
 
 class CustomGate: public Gate
 {
@@ -38,6 +39,7 @@ public:
     QString toString();
     bool build(QString fileName);
     QVector<DFlipFlop*> getAllDFlipFlops();
+    QVector<Clock*> getAllClocks();
     QVector<Gate*> internalGates;
     QVector<QList<Gate::Connection>> inputPointers;
     QVector<Gate::Connection> outputPointers;
@@ -45,6 +47,7 @@ public:
 
 private:
     QVector<DFlipFlop*> dFlipFlops;
+    QVector<Clock*> clocks;
     QImage gateImage;
     QString gateName;
     int getInt(QString content, int* index);

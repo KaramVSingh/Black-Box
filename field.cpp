@@ -14,6 +14,10 @@ Field::Field(QWidget *parent) :
     ui->setupUi(this);
     topLeftLocation.setX(0);
     topLeftLocation.setY(0);
+
+    clock = new QTimer();
+    connect(clock, SIGNAL(timeout()), this, SLOT(tickClocks()));
+    clock->start(1000);
 }
 
 Field::~Field()
@@ -227,6 +231,10 @@ void Field::placeGate(QPoint location)
         DFlipFlop* newD = new DFlipFlop(location);
         dflipflops.append(newD);
         gates.append(newD);
+    } else if(toolData == "CLOCK") {
+        Clock* newC = new Clock(location);
+        clocks.append(newC);
+        gates.append(newC);
     } else {
         CustomGate* newC = new CustomGate(location);
         if(newC->build(toolData + ".bb")) {
@@ -666,5 +674,36 @@ void Field::cleanRectangle()
         selectionRectangle.setRight(selectionRectangle.left());
         selectionRectangle.setLeft(left);
 
+    }
+}
+
+void Field::changeFrequency(int msec)
+{
+    clock->setInterval(msec);
+}
+
+void Field::tickClocks()
+{
+    clockSynchTrack = !clockSynchTrack;
+    for(int i = 0; i < clocks.size(); i++) {
+        if(clockSynchTrack) {
+            clocks[i]->value = 1;
+        } else {
+            clocks[i]->value = 0;
+        }
+    }
+
+    update();
+
+    for(int j = 0; j < dflipflops.size(); j++) {
+        dflipflops[j]->update();
+    }
+
+    for(int j = 0; j < dflipflops.size(); j++) {
+        dflipflops[j]->change();
+    }
+
+    for(int j = 0; j < outputGates.size(); j++) {
+        outputGates[j]->execute(0);
     }
 }

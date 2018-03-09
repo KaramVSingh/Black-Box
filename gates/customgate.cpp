@@ -53,6 +53,10 @@ bool CustomGate::build(QString fileName)
             gateName.remove("ENCODER");
             g->setNumberOfBits(gateName.toInt());
             internalGates.append(g);
+        } else if(gateName == "CLOCK") {
+            Clock* g = new Clock(QPoint(std::numeric_limits<int>::max(), std::numeric_limits<int>::max()));
+            clocks.append(g);
+            internalGates.append(g);
         } else if(gateName.contains("INPUT")) {
             Input* g = new Input(QPoint(std::numeric_limits<int>::max(), std::numeric_limits<int>::max()));
             gateName.remove("INPUT");
@@ -277,6 +281,11 @@ QString CustomGate::getWord(QString content, int *index)
 QVector<DFlipFlop*> CustomGate::getAllDFlipFlops()
 {
     return dFlipFlops;
+}
+
+QVector<Clock*> CustomGate::getAllClocks()
+{
+    return clocks;
 }
 
 int CustomGate::execute(int index)

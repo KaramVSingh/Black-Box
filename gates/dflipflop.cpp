@@ -31,6 +31,9 @@ int DFlipFlop::execute(int index)
     if(index == 0) {
         return state;
     } else {
+        if(state == -1) {
+            return -1;
+        }
         return (-1 * (state - 1));
     }
 }

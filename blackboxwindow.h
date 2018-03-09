@@ -39,6 +39,7 @@ private:
     void mouseReleaseEvent(QMouseEvent* event);
     bool isValid(QString str);
     QString getText();
+    CustomGate* getAssociatedBlackBox(Gate* gate);
     QString focusAndGetText(Gate* gate, int index, bool isInput);
     QPoint getFieldLocation(QPoint);
     QPoint startingPoint;

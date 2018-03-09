@@ -8,6 +8,7 @@
 #include <QPoint>
 #include <QRect>
 #include <QKeyEvent>
+#include <QTimer>
 
 #include "detail.h"
 #include "wire.h"
@@ -23,6 +24,7 @@
 #include "gates/encoder.h"
 #include "gates/dflipflop.h"
 #include "gates/customgate.h"
+#include "gates/clock.h"
 
 namespace Ui {
 class Field;
@@ -43,6 +45,8 @@ signals:
 
 public slots:
     void changeTool(Mode newTool, QString data);
+    void changeFrequency(int msec);
+    void tickClocks();
 
 private:
     Ui::Field *ui;
@@ -60,6 +64,7 @@ private:
 
     QVector<Gate*> gates;
     QVector<DFlipFlop*> dflipflops;
+    QVector<Clock*> clocks;
     QVector<Input*> inputGates;
     QVector<Output*> outputGates;
     QVector<Gate*> selectedGates;
@@ -72,6 +77,8 @@ private:
     Mode tool;
     QString toolData;
     QString typedChar;
+    QTimer* clock;
+    bool clockSynchTrack = false;
 
     QRect selectionRectangle;
     bool drawRect = false;

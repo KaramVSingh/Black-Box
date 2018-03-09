@@ -9,6 +9,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->sideselectionpane, SIGNAL(toolChanged(Mode,QString)), ui->field, SLOT(changeTool(Mode,QString)));
     connect(ui->topselectionpane, SIGNAL(toolChanged(Mode,QString)), ui->field, SLOT(changeTool(Mode,QString)));
     connect(ui->field, SIGNAL(addedGate()), ui->sideselectionpane, SLOT(refreshGates()));
+    connect(ui->sideselectionpane, SIGNAL(frequencyChanged(int)), ui->field, SLOT(changeFrequency(int)));
 }
 
 MainWindow::~MainWindow()

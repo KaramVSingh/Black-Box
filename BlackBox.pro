@@ -41,7 +41,8 @@ SOURCES += \
     gates/encoder.cpp \
     gates/dflipflop.cpp \
     blackboxwindow.cpp \
-    gates/customgate.cpp
+    gates/customgate.cpp \
+    gates/clock.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -61,7 +62,8 @@ HEADERS += \
     gates/encoder.h \
     gates/dflipflop.h \
     blackboxwindow.h \
-    gates/customgate.h
+    gates/customgate.h \
+    gates/clock.h
 
 FORMS += \
         mainwindow.ui \

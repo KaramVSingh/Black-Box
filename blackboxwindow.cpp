@@ -13,7 +13,7 @@ BlackBoxWindow::BlackBoxWindow(QVector<Gate*> gates, QVector<Wire*> wires, QWidg
         }
     }
 
-    topLeftGate -= QPoint(48, 48);
+    topLeftGate -= QPoint(64, 64);
     topLeftLocation = topLeftGate;
     this->gates = gates;
     this->wires = wires;
@@ -231,8 +231,10 @@ QString BlackBoxWindow::execute()
                 // we have two options, ignore it and not add it or add it.
                 // it can only possibly be connected to this gate
 
-                int blackBoxNumber;
-                bool isInBlackBox;
+                // we also want to ignore it if its hanging and not used in the gate anymore:
+
+                int blackBoxNumber = -1;
+                bool isInBlackBox = false;
                 // we have to also set all of the inputs connected to the same port if that is an issue
                 for(int k = 0; k < blackBoxGates.size(); k++) {
                     if(blackBoxGates[k].contains(fullGates[i])) {
@@ -242,6 +244,24 @@ QString BlackBoxWindow::execute()
                 }
 
                 if(isInBlackBox) {
+                    CustomGate* bbGate = getAssociatedBlackBox(fullGates[i]);
+                    bool isStillUsed = false;
+                    for(int k = 0; k < bbGate->inputPointers.size(); k++) {
+                        for(int l = 0; l < bbGate->inputPointers[k].size(); l++) {
+                            if(bbGate->inputPointers[k][l].gate == fullGates[i] && bbGate->inputPointers[k][l].otherIndex == j) {
+                                isStillUsed = true;
+                                break;
+                            }
+                        }
+
+                        if(isStillUsed) {
+                            break;
+                        }
+                    }
+
+                    if(!isStillUsed) {
+                        break;
+                    }
                     // the we need to apply the change we make to this input to all of the input ports
 
                     // we need all of the gates connected to this port
@@ -354,6 +374,22 @@ QString BlackBoxWindow::execute()
                     }
                 }
             } else {
+                CustomGate* bbGate = getAssociatedBlackBox(fullGates[i]);
+                bool isStillUsed = false;
+                if(bbGate != NULL) {
+                    foreach(Gate::Connection c, bbGate->outputPointers) {
+                        if(c.gate == fullGates[i] && c.otherIndex == j) {
+                            isStillUsed = true;
+                            break;
+                        }
+                    }
+
+                    if(!isStillUsed) {
+                        break;
+                    }
+                }
+
+
                 // we are elligible to add an output here:
                 QString name = focusAndGetText(fullGates[i], j, false);
 
@@ -384,9 +420,42 @@ QString BlackBoxWindow::execute()
     return gateName;
 }
 
+CustomGate* BlackBoxWindow::getAssociatedBlackBox(Gate* gate)
+{
+    int blackBoxNumber = 0;
+    int i = 0;
+    bool isBb = false;
+
+    foreach(QVector<Gate*> bb, blackBoxGates) {
+        if(bb.contains(gate)) {
+            blackBoxNumber = i;
+            isBb = true;
+            break;
+        }
+        i++;
+    }
+
+    if(!isBb) {
+        return NULL;
+    }
+
+    i = 0;
+    foreach(Gate* g, gates) {
+        if(g->toType() == GateType::CUSTOM) {
+            if(i == blackBoxNumber) {
+                CustomGate* theGate = static_cast<CustomGate*>(g);
+                return theGate;
+            }
+            i++;
+        }
+    }
+
+    return NULL;
+}
+
 QString BlackBoxWindow::focusAndGetText(Gate *gate, int index, bool isInput) {
-    bool isInBlackBox;
-    int blackBoxNumber;
+    bool isInBlackBox = false;
+    int blackBoxNumber = -1;
 
     for(int i = 0; i < blackBoxGates.size(); i++) {
         if(blackBoxGates[i].contains(gate)) {
@@ -460,7 +529,7 @@ bool BlackBoxWindow::isValid(QString str)
         return false;
     }
 
-    if(str.contains("AND") || str.contains("OR") || str.contains("NOT") || str.contains("DFLIPFLOP") || str.contains("INPUT") || str.contains("M_INPUT") || str.contains("OUTPUT") || str.contains("DECODER") || str.contains("ENCODER")){
+    if(str.contains("AND") || str.contains("CLOCK") || str.contains("OR") || str.contains("NOT") || str.contains("DFLIPFLOP") || str.contains("INPUT") || str.contains("M_INPUT") || str.contains("OUTPUT") || str.contains("DECODER") || str.contains("ENCODER")){
         return false;
     }
 
