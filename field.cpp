@@ -239,6 +239,7 @@ void Field::placeGate(QPoint location)
         CustomGate* newC = new CustomGate(location);
         if(newC->build(toolData + ".bb")) {
             dflipflops.append(newC->getAllDFlipFlops());
+            clocks.append(newC->getAllClocks());
             gates.append(newC);
         }
     }
@@ -574,13 +575,14 @@ void Field::toggleInputs(QPoint point)
                 }
 
             }
+            for(int k = 0; k < dflipflops.size(); k++) {
+                for(int j = 0; j < dflipflops.size(); j++) {
+                    dflipflops[j]->update();
+                }
 
-            for(int j = 0; j < dflipflops.size(); j++) {
-                dflipflops[j]->update();
-            }
-
-            for(int j = 0; j < dflipflops.size(); j++) {
-                dflipflops[j]->change();
+                for(int j = 0; j < dflipflops.size(); j++) {
+                    dflipflops[j]->change();
+                }
             }
 
             for(int j = 0; j < outputGates.size(); j++) {
@@ -691,19 +693,24 @@ void Field::tickClocks()
         } else {
             clocks[i]->value = 0;
         }
+
+        // we need to find all of the dflipflops connected to each clock in order to make it useful
     }
 
     update();
 
-    for(int j = 0; j < dflipflops.size(); j++) {
-        dflipflops[j]->update();
-    }
+    for(int k = 0; k < dflipflops.size(); k++) {
+        for(int j = 0; j < dflipflops.size(); j++) {
+            dflipflops[j]->update();
+        }
 
-    for(int j = 0; j < dflipflops.size(); j++) {
-        dflipflops[j]->change();
+        for(int j = 0; j < dflipflops.size(); j++) {
+            dflipflops[j]->change();
+        }
     }
 
     for(int j = 0; j < outputGates.size(); j++) {
         outputGates[j]->execute(0);
     }
+
 }

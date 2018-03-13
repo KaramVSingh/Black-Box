@@ -3,7 +3,7 @@
 void DFlipFlop::update()
 {
     if(takenInputs.size() != 2) {
-        nextState = -1;
+        nextState = 0;
         return;
     }
 

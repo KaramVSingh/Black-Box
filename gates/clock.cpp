@@ -93,5 +93,5 @@ GateType Clock::toType()
 
 QString Clock::toString()
 {
-    return "Clock";
+    return "CLOCK";
 }

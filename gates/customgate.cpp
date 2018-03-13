@@ -62,6 +62,9 @@ bool CustomGate::build(QString fileName)
             gateName.remove("INPUT");
             g->value = gateName.toInt();
             internalGates.append(g);
+        } else if(gateName == "OUTPUT") {
+            Output* g = new Output(QPoint(std::numeric_limits<int>::max(), std::numeric_limits<int>::max()));
+            internalGates.append(g);
         }
 
         index++;

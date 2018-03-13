@@ -157,7 +157,9 @@ QString BlackBoxWindow::execute()
     // we want to create an array of basic gates
     for(int i = 0; i < gates.size(); i++) {
         if(gates[i]->toType() != GateType::CUSTOM) {
-            fullGates.append(gates[i]);
+            // if(gates[i]->toType() != GateType::OUTPUT) {
+                fullGates.append(gates[i]);
+            // }
         } else {
             CustomGate* gate = static_cast<CustomGate*>(gates[i]);
             fullGates.append(gate->internalGates);
@@ -352,7 +354,36 @@ QString BlackBoxWindow::execute()
                     if(fullGates.contains(outs.gate)) {
                         if(outs.gate->toType() == GateType::OUTPUT) {
                             // we are elligible to add an output here:
-                            QString name = focusAndGetText(fullGates[i], j, false);
+
+                            QString name;
+                            if(getAssociatedBlackBox(fullGates[i]) == NULL) {
+                                name = focusAndGetText(fullGates[i], j, false);
+                            } else {
+                                if(gates.contains(outs.gate)) {
+                                    name = focusAndGetText(fullGates[i], j, false);
+                                } else {
+                                    bool foundMatch = false;
+                                    int indexOfOtherOutput = -1;
+                                    for(int l = 0; l < fullGates[i]->outputs[j].size(); l++) {
+                                        if(k != l) {
+                                            if(fullGates[i]->outputs[j][l].gate->toType() == GateType::OUTPUT) {
+                                                if(gates.contains(fullGates[i]->outputs[j][l].gate)) {
+                                                    foundMatch = true;
+                                                    continue;
+                                                } else {
+                                                    indexOfOtherOutput = l;
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    if(!foundMatch) {
+                                        if(indexOfOtherOutput < k) {
+                                            name = focusAndGetText(fullGates[i], j, false);
+                                        }
+                                    }
+                                }
+                            }
 
                             if(name == "") {
                                 continue;
@@ -385,7 +416,7 @@ QString BlackBoxWindow::execute()
                     }
 
                     if(!isStillUsed) {
-                        break;
+                        continue;
                     }
                 }
 
