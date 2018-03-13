@@ -420,7 +420,6 @@ QString BlackBoxWindow::execute()
                     }
                 }
 
-
                 // we are elligible to add an output here:
                 QString name = focusAndGetText(fullGates[i], j, false);
 
@@ -507,6 +506,7 @@ QString BlackBoxWindow::focusAndGetText(Gate *gate, int index, bool isInput) {
                                 if(customGate->inputPointers[j][k].gate == gate) {
                                     if(customGate->inputPointers[j][k].otherIndex == index) {
                                         index = j;
+                                        break;
                                     }
                                 }
                             }
@@ -516,6 +516,7 @@ QString BlackBoxWindow::focusAndGetText(Gate *gate, int index, bool isInput) {
                             if(customGate->outputPointers[j].gate == gate) {
                                 if(customGate->outputPointers[j].otherIndex == index) {
                                     index = j;
+                                    break;
                                 }
                             }
                         }
