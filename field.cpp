@@ -17,7 +17,6 @@ Field::Field(QWidget *parent) :
 
     clock = new QTimer();
     connect(clock, SIGNAL(timeout()), this, SLOT(tickClocks()));
-    clock->start(1000);
 }
 
 Field::~Field()
@@ -681,7 +680,13 @@ void Field::cleanRectangle()
 
 void Field::changeFrequency(int msec)
 {
-    clock->setInterval(msec);
+    if(msec == 1000) {
+        clock->stop();
+    } else {
+        clock->start();
+        clock->setInterval(msec);
+    }
+
 }
 
 void Field::tickClocks()
