@@ -193,7 +193,7 @@ QString BlackBoxWindow::execute()
     QString inputsString = "";
 
     int numberOfInputs = 0;
-    QVector<Gate*> inputsChecked;
+    QVector<Gate::Connection> inputsChecked;
     QVector<Gate::Connection> handledOpenBlackBoxPort;
     for(int i = 0; i < fullGates.size(); i++) {
         for(int j = 0; j < fullGates[i]->numberOfInputLines; j++) {
@@ -205,13 +205,20 @@ QString BlackBoxWindow::execute()
                     QList<Gate::Connection> outsOfIn = fullGates[i]->inputs[j].gate->outputs[indexOfThisOutput];
                     bool hasBeenHandled = false;
                     // the list contains every output of the gate that is connected to that point
-                    if(inputsChecked.contains(fullGates[i]->inputs[j].gate)) {
-                        hasBeenHandled = true;
+                    for(int k = 0; k < inputsChecked.size(); k++) {
+                        if(inputsChecked[k].gate == fullGates[i]->inputs[j].gate) {
+                            if(inputsChecked[k].otherIndex == fullGates[i]->inputs[j].otherIndex) {
+                                hasBeenHandled = true;
+                                break;
+                            }
+                        }
+                    }
+                    if(hasBeenHandled) {
                         break;
                     }
 
                     if(!hasBeenHandled) {
-                        inputsChecked.append(fullGates[i]->inputs[j].gate);
+                        inputsChecked.append(fullGates[i]->inputs[j]);
                         QString name = focusAndGetText(fullGates[i], j, true);
 
                         if(name == "") {
@@ -354,6 +361,28 @@ QString BlackBoxWindow::execute()
                     if(fullGates.contains(outs.gate)) {
                         if(outs.gate->toType() == GateType::OUTPUT) {
                             // we are elligible to add an output here:
+
+                            // this check is so that if there is a gate connected to a black box
+                            // port that has an output on it, we ignore it:
+                            bool skip = false;
+                            if(fullGates[i]->outputs[j].size() > 1) {
+                                // we want to be checking if there is an output inside but the
+                                // outside is connected to a regular gate
+                                if(!gates.contains(outs.gate)) {
+                                    for(int l = 0; l < fullGates[i]->outputs[j].size(); l++) {
+                                        if(l != k) {
+                                            if(fullGates.contains(fullGates[i]->outputs[j][l].gate)) {
+                                                skip = true;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            if(skip) {
+                                continue;
+                            }
 
                             QString name;
                             if(getAssociatedBlackBox(fullGates[i]) == NULL) {
@@ -501,14 +530,20 @@ QString BlackBoxWindow::focusAndGetText(Gate *gate, int index, bool isInput) {
                 if(num == blackBoxNumber) {
                     CustomGate* customGate = static_cast<CustomGate*>(gates[i]);
                     if(isInput) {
+                        bool exitLoop = false;
                         for(int j = 0; j < customGate->inputPointers.size(); j++) {
                             for(int k = 0; k < customGate->inputPointers[j].size(); k++) {
                                 if(customGate->inputPointers[j][k].gate == gate) {
                                     if(customGate->inputPointers[j][k].otherIndex == index) {
                                         index = j;
+                                        exitLoop = true;
                                         break;
                                     }
                                 }
+                            }
+
+                            if(exitLoop) {
+                                break;
                             }
                         }
                     } else {
