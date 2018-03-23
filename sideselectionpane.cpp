@@ -129,5 +129,12 @@ void SideSelectionPane::on_customGates_activated(const QString &arg1)
 {
     ui->customGates->setStyleSheet("QComboBox { color : white; background-color : #1cbbb4; border: 0px; } QComboBox::drop-down {border: 0px;}");
 
+    ui->standardGates->selected = -1;
+    ui->standardGates->update();
+    ui->multibitGates->selected = -1;
+    ui->multibitGates->update();
+    ui->tools->selected = -1;
+    ui->tools->update();
+
     emit toolChanged(Mode::place, arg1);
 }
