@@ -600,9 +600,14 @@ bool BlackBoxWindow::isValid(QString str)
         return false;
     }
 
+    if(str.contains("DRAW WIRE") || str.contains("D-FLIPFLOP") || str.contains("BLACK BOX") || str.contains("INTERACT") || str.contains("MULTI INPUT") || str.contains("MULTI OUTPUT")) {
+        return false;
+    }
+
     if(str[0] == '_' || str.contains("~") || str.contains("#") || str.contains("%") || str.contains("&") || str.contains("*") || str.contains("{") || str.contains("}") || str.contains("\\") || str.contains(".") || str.contains(":") || str.contains("<") || str.contains(">") || str.contains("?") || str.contains("/") || str.contains("+") || str.contains("|") || str.contains("\"")) {
         return false;
     }
+
     return true;
 }
 

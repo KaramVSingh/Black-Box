@@ -224,13 +224,19 @@ void Field::placeGate(QPoint location)
     } else if(toolData.contains("DECODER")) {
         Decoder* newDec = new Decoder(location);
         QString num = toolData.remove("DECODER");
-        newDec->setNumberOfBits(num.toInt());
-        gates.append(newDec);
+        if(num.toInt() != 0) {
+            newDec->setNumberOfBits(num.toInt());
+            gates.append(newDec);
+        }
+        toolData += "DECODER";
     } else if(toolData.contains("ENCODER")) {
         Encoder* newEn = new Encoder(location);
         QString num = toolData.remove("ENCODER");
-        newEn->setNumberOfBits(num.toInt());
-        gates.append(newEn);
+        if(num.toInt() != 0) {
+            newEn->setNumberOfBits(num.toInt());
+            gates.append(newEn);
+        }
+        toolData += "ENCODER";
     } else if(toolData == "D-FLIPFLOP") {
         DFlipFlop* newD = new DFlipFlop(location);
         dflipflops.append(newD);

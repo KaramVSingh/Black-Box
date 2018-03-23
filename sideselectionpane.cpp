@@ -57,19 +57,48 @@ void SideSelectionPane::paintEvent(QPaintEvent *e)
 
 void SideSelectionPane::optionSelected(QString option)
 {
-    ui->multibitGates->selected = -1;
-    ui->multibitGates->update();
-    ui->standardGates->selected = -1;
-    ui->standardGates->update();
-    ui->tools->selected = -1;
-    ui->tools->update();
+    QString fullOption = option;
+    option.remove('0');
+    option.remove('1');
+    option.remove('2');
+    option.remove('3');
+    option.remove('4');
+    option.remove('5');
+    option.remove('6');
+    option.remove('7');
+    option.remove('8');
+    option.remove('9');
+
+    if(ui->standardGates->options.contains(option)) {
+        ui->multibitGates->selected = -1;
+        ui->multibitGates->update();
+
+        ui->tools->selected = -1;
+        ui->tools->update();
+    }
+
+    if(ui->multibitGates->options.contains(option)) {
+        ui->standardGates->selected = -1;
+        ui->standardGates->update();
+
+        ui->tools->selected = -1;
+        ui->tools->update();
+    }
+
+    if(ui->tools->options.contains(option)) {
+        ui->standardGates->selected = -1;
+        ui->standardGates->update();
+
+        ui->multibitGates->selected = -1;
+        ui->multibitGates->update();
+    }
 
     if(ui->standardGates->options.contains(option) || ui->multibitGates->options.contains(option) || ui->tools->options.contains(option)) {
         ui->customGates->setStyleSheet("QComboBox { color : white; background-color : #201f37; border: 0px; } QComboBox::drop-down {border: 0px;}");
     }
 
     if(ui->standardGates->options.contains(option) || ui->multibitGates->options.contains(option)) {
-        emit toolChanged(Mode::place, option);
+        emit toolChanged(Mode::place, fullOption);
     } else {
         if(option == "DRAW WIRE") {
             emit toolChanged(Mode::wire, "");

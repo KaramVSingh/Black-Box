@@ -5,6 +5,8 @@
 #include <QPainter>
 #include <QMouseEvent>
 #include <QDebug>
+#include <QFontMetrics>
+#include <QKeyEvent>
 
 namespace Ui {
 class ButtonGroup;
@@ -33,7 +35,11 @@ private:
     void mousePressEvent(QMouseEvent *e);
     void enterEvent(QEvent *e);
     void leaveEvent(QEvent *e);
+    void keyPressEvent(QKeyEvent *e);
     QVector<bool> takesInts;
+
+    QString enteredNumber = "0";
+    bool isAcceptingTyping = false;
 
 };
 
