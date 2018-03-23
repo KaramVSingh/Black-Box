@@ -211,7 +211,12 @@ void Field::placeGate(QPoint location)
         Output* newOutput = new Output(location);
         gates.append(newOutput);
         outputGates.append(newOutput);
-    } else if(toolData == "M_INPUT") {
+    } else if(toolData == "MULTI OUTPUT") {
+        Output* newOutput = new Output(location);
+        newOutput->setMultiBit(true);
+        gates.append(newOutput);
+        outputGates.append(newOutput);
+    } else if(toolData == "MULTI INPUT") {
         Input * newInput = new Input(location);
         newInput->setMultiBit(true);
         gates.append(newInput);
@@ -226,7 +231,7 @@ void Field::placeGate(QPoint location)
         QString num = toolData.remove("ENCODER");
         newEn->setNumberOfBits(num.toInt());
         gates.append(newEn);
-    } else if(toolData == "DFLIPFLOP") {
+    } else if(toolData == "D-FLIPFLOP") {
         DFlipFlop* newD = new DFlipFlop(location);
         dflipflops.append(newD);
         gates.append(newD);

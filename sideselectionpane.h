@@ -26,25 +26,13 @@ public:
 
 signals:
     void toolChanged(Mode, QString);
-    void frequencyChanged(int);
 
 public slots:
     void refreshGates();
+    void optionSelected(QString option);
 
 private slots:
-    void on_comboBox_activated(const QString &arg1);
-
-    void on_wireButton_clicked();
-
-    void on_interactButton_clicked();
-
-    void on_decoderBits_returnPressed();
-
-    void on_encoderBits_returnPressed();
-
-    void on_boxButton_clicked();
-
-    void on_frequencySlider_sliderMoved(int position);
+    void on_customGates_activated(const QString &arg1);
 
 private:
     Ui::SideSelectionPane *ui;

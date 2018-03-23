@@ -17,6 +17,7 @@ public:
     void changeValue() {}
     GateType toType();
     QString toString();
+    void setMultiBit(bool isMulti);
 
     int value = -1;
 };

@@ -42,7 +42,8 @@ SOURCES += \
     gates/dflipflop.cpp \
     blackboxwindow.cpp \
     gates/customgate.cpp \
-    gates/clock.cpp
+    gates/clock.cpp \
+    buttongroup.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -63,7 +64,8 @@ HEADERS += \
     gates/dflipflop.h \
     blackboxwindow.h \
     gates/customgate.h \
-    gates/clock.h
+    gates/clock.h \
+    buttongroup.h
 
 FORMS += \
         mainwindow.ui \
@@ -71,4 +73,5 @@ FORMS += \
     field.ui \
     topselectionpane.ui \
     bottomselectionpane.ui \
-    blackboxwindow.ui
+    blackboxwindow.ui \
+    buttongroup.ui

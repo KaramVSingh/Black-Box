@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>250</width>
+    <height>700</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -42,76 +42,161 @@
     <number>0</number>
    </property>
    <item>
-    <widget class="QComboBox" name="comboBox"/>
-   </item>
-   <item>
-    <widget class="QPushButton" name="wireButton">
-     <property name="text">
-      <string>Draw Wire</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QPushButton" name="interactButton">
-     <property name="text">
-      <string>Interact</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QPushButton" name="boxButton">
-     <property name="text">
-      <string>Black Box</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QLineEdit" name="decoderBits">
+    <widget class="QLabel" name="logo">
      <property name="sizePolicy">
-      <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+      <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QLineEdit" name="encoderBits">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
+     <property name="font">
+      <font>
+       <family>TechnicLite</family>
+       <pointsize>18</pointsize>
+      </font>
+     </property>
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QLabel { color : white; }</string>
+     </property>
+     <property name="text">
+      <string notr="true">BlackBox</string>
+     </property>
+     <property name="textFormat">
+      <enum>Qt::PlainText</enum>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignHCenter|Qt::AlignTop</set>
+     </property>
+     <property name="margin">
+      <number>20</number>
      </property>
     </widget>
    </item>
    <item>
-    <widget class="QSlider" name="frequencySlider">
+    <widget class="QLabel" name="standardGatesLabel">
      <property name="sizePolicy">
-      <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+      <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="minimum">
-      <number>10</number>
+     <property name="font">
+      <font>
+       <family>ISOCPEUR</family>
+       <pointsize>10</pointsize>
+      </font>
      </property>
-     <property name="maximum">
-      <number>1000</number>
+     <property name="styleSheet">
+      <string notr="true">QLabel { color : white; }</string>
      </property>
-     <property name="singleStep">
-      <number>10</number>
+     <property name="text">
+      <string>DEFAULT GATES</string>
      </property>
-     <property name="sliderPosition">
-      <number>1000</number>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
      </property>
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="invertedAppearance">
-      <bool>true</bool>
+     <property name="margin">
+      <number>8</number>
      </property>
     </widget>
+   </item>
+   <item>
+    <widget class="ButtonGroup" name="standardGates" native="true"/>
+   </item>
+   <item>
+    <widget class="QLabel" name="multibitGatesLabel">
+     <property name="font">
+      <font>
+       <family>ISOCPEUR</family>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QLabel { color : white; }</string>
+     </property>
+     <property name="text">
+      <string>MULTI-BIT GATES</string>
+     </property>
+     <property name="margin">
+      <number>8</number>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="ButtonGroup" name="multibitGates" native="true"/>
+   </item>
+   <item>
+    <widget class="QLabel" name="customGatesLabel">
+     <property name="font">
+      <font>
+       <family>ISOCPEUR</family>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QLabel { color : white; }</string>
+     </property>
+     <property name="text">
+      <string>CUSTOM GATES</string>
+     </property>
+     <property name="margin">
+      <number>8</number>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QComboBox" name="customGates">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>28</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>230</width>
+       <height>16777215</height>
+      </size>
+     </property>
+     <property name="font">
+      <font>
+       <family>ISOCP</family>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QComboBox { color : white; background-color : #272643; border: 0px; } 
+QComboBox::drop-down 
+{
+    border: 0px; /* This seems to replace the whole arrow of the combo box */
+}</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="toolsLabel">
+     <property name="font">
+      <font>
+       <family>ISOCPEUR</family>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QLabel { color : white; }</string>
+     </property>
+     <property name="text">
+      <string>TOOLS</string>
+     </property>
+     <property name="margin">
+      <number>8</number>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="ButtonGroup" name="tools" native="true"/>
    </item>
    <item>
     <spacer name="verticalSpacer">
@@ -128,6 +213,14 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ButtonGroup</class>
+   <extends>QWidget</extends>
+   <header>buttongroup.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

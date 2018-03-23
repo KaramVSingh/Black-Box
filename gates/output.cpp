@@ -1,5 +1,12 @@
 #include "output.h"
 
+void Output::setMultiBit(bool isMulti)
+{
+    if(isMulti) {
+        multiBitInputs.append(0);
+    }
+}
+
 int Output::execute(int index)
 {
     if(takenInputs.size() != 1) {

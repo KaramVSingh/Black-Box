@@ -5,8 +5,30 @@ SideSelectionPane::SideSelectionPane(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::SideSelectionPane)
 {
-    setMouseTracking(true);
     ui->setupUi(this);
+    setMouseTracking(true);
+
+    connect(ui->tools, SIGNAL(pressed(QString)), this, SLOT(optionSelected(QString)));
+    connect(ui->standardGates, SIGNAL(pressed(QString)), this, SLOT(optionSelected(QString)));
+    connect(ui->customGates, SIGNAL(activated(QString)), this, SLOT(optionSelected(QString)));
+    connect(ui->multibitGates, SIGNAL(pressed(QString)), this, SLOT(optionSelected(QString)));
+
+    ui->standardGates->addOption("AND", false);
+    ui->standardGates->addOption("OR", false);
+    ui->standardGates->addOption("NOT", false);
+    ui->standardGates->addOption("D-FLIPFLOP", false);
+    ui->standardGates->addOption("CLOCK", false);
+    ui->standardGates->addOption("INPUT", false);
+    ui->standardGates->addOption("OUTPUT", false);
+
+    ui->multibitGates->addOption("MULTI INPUT", false);
+    ui->multibitGates->addOption("MULTI OUTPUT", false);
+    ui->multibitGates->addOption("ENCODER", true);
+    ui->multibitGates->addOption("DECODER", true);
+
+    ui->tools->addOption("DRAW WIRE", false);
+    ui->tools->addOption("INTERACT", false);
+    ui->tools->addOption("BLACK BOX", false);
 
     // add all of the gates
     refreshGates();
@@ -24,70 +46,59 @@ void SideSelectionPane::paintEvent(QPaintEvent *e)
 {
     // set the painter and the pen for the widget
     QPainter paint(this);
-    QPen pen(QColor(50, 50, 50));
-    pen.setWidth(4);
+    QPen pen(QColor(22, 21, 37));
+    pen.setWidth(1);
     paint.setPen(pen);
 
     // draw the dark rectangle background of the pane
-    paint.fillRect(0, 0, this->width(), this->height(), QColor(70, 70, 70));
+    paint.fillRect(0, 0, this->width(), this->height(), QColor(22, 21, 37));
     paint.drawRect(0, 0, this->width(), this->height());
+}
+
+void SideSelectionPane::optionSelected(QString option)
+{
+    ui->multibitGates->selected = -1;
+    ui->multibitGates->update();
+    ui->standardGates->selected = -1;
+    ui->standardGates->update();
+    ui->tools->selected = -1;
+    ui->tools->update();
+
+    if(ui->standardGates->options.contains(option) || ui->multibitGates->options.contains(option) || ui->tools->options.contains(option)) {
+        ui->customGates->setStyleSheet("QComboBox { color : white; background-color : #201f37; border: 0px; } QComboBox::drop-down {border: 0px;}");
+    }
+
+    if(ui->standardGates->options.contains(option) || ui->multibitGates->options.contains(option)) {
+        emit toolChanged(Mode::place, option);
+    } else {
+        if(option == "DRAW WIRE") {
+            emit toolChanged(Mode::wire, "");
+        } else if(option == "INTERACT") {
+            emit toolChanged(Mode::interact, "");
+        } else if(option == "BLACK BOX") {
+            emit toolChanged(Mode::blackBox, "");
+        }
+    }
+
 }
 
 void SideSelectionPane::refreshGates()
 {
-    ui->comboBox->clear();
+    ui->customGates->clear();
     QString dir(QFileInfo(".").absolutePath());
     dir.append("/BlackBox/CustomGates/");
     QDir directory(dir);
     QStringList customGates = directory.entryList(QStringList() << "*.bb" << "*.BB", QDir::Files);
 
-    ui->comboBox->addItem("AND");
-    ui->comboBox->addItem("OR");
-    ui->comboBox->addItem("NOT");
-    ui->comboBox->addItem("INPUT");
-    ui->comboBox->addItem("M_INPUT");
-    ui->comboBox->addItem("OUTPUT");
-    ui->comboBox->addItem("DFLIPFLOP");
-    ui->comboBox->addItem("CLOCK");
-
     foreach(QString gate, customGates) {
         QString name = gate.split(".")[0];
-        ui->comboBox->addItem(name);
+        ui->customGates->addItem(name);
     }
-
 }
 
-void SideSelectionPane::on_comboBox_activated(const QString &arg1)
+void SideSelectionPane::on_customGates_activated(const QString &arg1)
 {
+    ui->customGates->setStyleSheet("QComboBox { color : white; background-color : #1cbbb4; border: 0px; } QComboBox::drop-down {border: 0px;}");
+
     emit toolChanged(Mode::place, arg1);
-}
-
-void SideSelectionPane::on_wireButton_clicked()
-{
-    emit toolChanged(Mode::wire, "");
-}
-
-void SideSelectionPane::on_interactButton_clicked()
-{
-    emit toolChanged(Mode::interact, "");
-}
-
-void SideSelectionPane::on_decoderBits_returnPressed()
-{
-    emit toolChanged(Mode::place, "DECODER" + ui->decoderBits->text());
-}
-
-void SideSelectionPane::on_encoderBits_returnPressed()
-{
-    emit toolChanged(Mode::place, "ENCODER" + ui->encoderBits->text());
-}
-
-void SideSelectionPane::on_boxButton_clicked()
-{
-    emit toolChanged(Mode::blackBox, "");
-}
-
-void SideSelectionPane::on_frequencySlider_sliderMoved(int position)
-{
-    emit frequencyChanged(position);
 }
