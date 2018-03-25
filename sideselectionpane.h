@@ -29,6 +29,7 @@ signals:
 
 public slots:
     void refreshGates();
+    void clearSelected(Mode m, QString s);
     void optionSelected(QString option);
 
 private slots:

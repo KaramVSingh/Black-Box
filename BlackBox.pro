@@ -43,7 +43,8 @@ SOURCES += \
     blackboxwindow.cpp \
     gates/customgate.cpp \
     gates/clock.cpp \
-    buttongroup.cpp
+    buttongroup.cpp \
+    slidebar.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -65,7 +66,8 @@ HEADERS += \
     blackboxwindow.h \
     gates/customgate.h \
     gates/clock.h \
-    buttongroup.h
+    buttongroup.h \
+    slidebar.h
 
 FORMS += \
         mainwindow.ui \
@@ -74,4 +76,5 @@ FORMS += \
     topselectionpane.ui \
     bottomselectionpane.ui \
     blackboxwindow.ui \
-    buttongroup.ui
+    buttongroup.ui \
+    slidebar.ui

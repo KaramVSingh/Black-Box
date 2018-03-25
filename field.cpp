@@ -7,7 +7,7 @@ Field::Field(QWidget *parent) :
 {
     zoom = 1;
     drawingWire = false;
-    tool = Mode::place;
+    tool = Mode::move;
     dragging = false;
     setMouseTracking(true);
     setFocusPolicy(Qt::StrongFocus);
@@ -693,6 +693,9 @@ void Field::changeFrequency(int msec)
 {
     if(msec == 1000) {
         clock->stop();
+    } else if(msec == 0) {
+        clock->start();
+        clock->setInterval(1);
     } else {
         clock->start();
         clock->setInterval(msec);

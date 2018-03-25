@@ -6,8 +6,10 @@
 #include <QPaintEvent>
 #include <QColor>
 #include <QPen>
+#include <QDebug>
 
 #include "detail.h"
+#include "field.h"
 
 namespace Ui {
 class TopSelectionPane;
@@ -20,13 +22,12 @@ class TopSelectionPane : public QWidget
 public:
     explicit TopSelectionPane(QWidget *parent = 0);
     ~TopSelectionPane();
+    void init(Field *widget);
+
+public slots:
+    void clearSelected(Mode m, QString s);
 
 private slots:
-    void on_zoomInButton_clicked();
-
-    void on_zoomOutButton_clicked();
-
-    void on_moveButton_clicked();
 
 signals:
     void toolChanged(Mode newTool, QString data);
@@ -34,6 +35,17 @@ signals:
 private:
     Ui::TopSelectionPane *ui;
     void paintEvent(QPaintEvent *e);
+    void mouseMoveEvent(QMouseEvent *e);
+    void mousePressEvent(QMouseEvent *e);
+    void enterEvent(QEvent *e);
+    void leaveEvent(QEvent *e);
+    QPoint mouse;
+    bool hasMouse = false;
+    int selected = -1;
+    QImage moveIcon;
+    QImage zoomInIcon;
+    QImage zoomOutIcon;
+
 };
 
 #endif // TOPSELECTIONPANE_H

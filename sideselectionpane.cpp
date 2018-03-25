@@ -125,6 +125,19 @@ void SideSelectionPane::refreshGates()
     }
 }
 
+void SideSelectionPane::clearSelected(Mode m, QString s)
+{
+    ui->standardGates->selected = -1;
+    ui->standardGates->update();
+    ui->tools->selected = -1;
+    ui->tools->update();
+    ui->multibitGates->selected = -1;
+    ui->multibitGates->update();
+
+    ui->customGates->setStyleSheet("QComboBox { color : white; background-color : #201f37; border: 0px; } QComboBox::drop-down {border: 0px;}");
+    update();
+}
+
 void SideSelectionPane::on_customGates_activated(const QString &arg1)
 {
     ui->customGates->setStyleSheet("QComboBox { color : white; background-color : #1cbbb4; border: 0px; } QComboBox::drop-down {border: 0px;}");

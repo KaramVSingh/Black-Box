@@ -6,6 +6,7 @@ BlackBoxWindow::BlackBoxWindow(QVector<Gate*> gates, QVector<Wire*> wires, QWidg
     ui(new Ui::BlackBoxWindow)
 {
     ui->setupUi(this);
+    setMouseTracking(true);
     QPoint topLeftGate(std::numeric_limits<int>::max(), std::numeric_limits<int>::max());
     foreach(Gate* g, gates) {
         if(g->location.x() < topLeftGate.x() && g->location.y() < topLeftGate.y()) {
@@ -17,6 +18,16 @@ BlackBoxWindow::BlackBoxWindow(QVector<Gate*> gates, QVector<Wire*> wires, QWidg
     topLeftLocation = topLeftGate;
     this->gates = gates;
     this->wires = wires;
+
+
+    QString dir(QFileInfo(".").absolutePath());
+    QPixmap pixMove(dir + "/BlackBox/imageSources/items/move_icon.png");
+    moveIcon = pixMove.toImage();
+    QPixmap pixZoomIn(dir + "/BlackBox/imageSources/items/zoom_icon.png");
+    zoomInIcon = pixZoomIn.toImage();
+    QPixmap pixZoomOut(dir + "/BlackBox/imageSources/items/zoomOut_icon.png");
+    zoomOutIcon = pixZoomOut.toImage();
+
     update();
 }
 
@@ -27,10 +38,31 @@ BlackBoxWindow::~BlackBoxWindow()
 
 void BlackBoxWindow::mousePressEvent(QMouseEvent *event)
 {
+    if(QRect(width() - 225, 75, 50, 50).contains(mouse)) {
+        selected = 3;
+        changingSelected = true;
+        update();
+        return;
+    }
+
+    if(QRect(width() - 150, 75, 50, 50).contains(mouse)) {
+        selected = 2;
+        changingSelected = true;
+        update();
+        return;
+    }
+
+    if(QRect(width() - 75, 75, 50, 50).contains(mouse)) {
+        selected = 1;
+        changingSelected = true;
+        update();
+        return;
+    }
+
     startingPoint = getFieldLocation(QPoint(event->x(), event->y()));
     update();
-    switch(tool) {
-    case Mode::zoomIn:
+    switch(selected) {
+    case 2:
         if(zoom < 2) {
             zoom *= 2;
             // we also need to change the topLeftLocation. we want to have the width and
@@ -42,7 +74,7 @@ void BlackBoxWindow::mousePressEvent(QMouseEvent *event)
             topLeftLocation.setY(startingPoint.y() - (int)(windowHeight / 2 / zoom) / GRID_DENSITY * GRID_DENSITY);
         }
         break;
-    case Mode::zoomOut:
+    case 1:
         if(zoom > 0.5) {
             zoom /= 2;
             // we also need to change the topLeftLocation
@@ -59,8 +91,14 @@ void BlackBoxWindow::mousePressEvent(QMouseEvent *event)
 void BlackBoxWindow::mouseReleaseEvent(QMouseEvent *event)
 {
     QPoint fieldPoint = getFieldLocation(QPoint(event->x(), event->y()));
-    switch(tool) {
-    case Mode::move:
+
+    if(changingSelected) {
+        changingSelected = false;
+        return;
+    }
+
+    switch(selected) {
+    case 3:
         topLeftLocation += startingPoint - fieldPoint;
         break;
     }
@@ -113,6 +151,30 @@ void BlackBoxWindow::paintEvent(QPaintEvent *event)
     if(showRect) {
         paint.drawRect((focusPoint.x() - 4 - topLeftLocation.x()) * zoom, (focusPoint.y() - 4 - topLeftLocation.y()) * zoom, 8 * zoom, 8 * zoom);
     }
+
+    paint.fillRect(width() - 225, 75, 50, 50, QColor(39, 38, 67));
+    paint.fillRect(width() - 150, 75, 50, 50, QColor(39, 38, 67));
+    paint.fillRect(width() - 75, 75, 50, 50, QColor(39, 38, 67));
+
+    if(QRect(width() - 225, 75, 50, 50).contains(mouse)) {
+        paint.fillRect(width() - 225, 75, 50, 50, QColor(58, 78, 100));
+    }
+
+    if(QRect(width() - 150, 75, 50, 50).contains(mouse)) {
+        paint.fillRect(width() - 150, 75, 50, 50, QColor(58, 78, 100));
+    }
+
+    if(QRect(width() - 75, 75, 50, 50).contains(mouse)) {
+        paint.fillRect(width() - 75, 75, 50, 50, QColor(58, 78, 100));
+    }
+
+    if(selected != -1) {
+        paint.fillRect(width() - selected * 75, 75, 50, 50, QColor(28, 187, 180));
+    }
+
+    paint.drawImage(width() - 225, 75, moveIcon);
+    paint.drawImage(width() - 150, 75, zoomInIcon);
+    paint.drawImage(width() - 75, 75, zoomOutIcon);
 }
 
 // used to translate between gui point and field point
@@ -611,17 +673,9 @@ bool BlackBoxWindow::isValid(QString str)
     return true;
 }
 
-void BlackBoxWindow::on_zoomInButton_clicked()
+void BlackBoxWindow::mouseMoveEvent(QMouseEvent *event)
 {
-    tool = Mode::zoomIn;
-}
-
-void BlackBoxWindow::on_zoomOutButton_clicked()
-{
-    tool = Mode::zoomOut;
-}
-
-void BlackBoxWindow::on_moveButton_clicked()
-{
-    tool = Mode::move;
+    mouse.setX(event->x());
+    mouse.setY(event->y());
+    update();
 }
