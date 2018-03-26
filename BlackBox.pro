@@ -29,7 +29,6 @@ SOURCES += \
     sideselectionpane.cpp \
     field.cpp \
     topselectionpane.cpp \
-    bottomselectionpane.cpp \
     wire.cpp \
     gates/not.cpp \
     gates/and.cpp \
@@ -51,7 +50,6 @@ HEADERS += \
     sideselectionpane.h \
     field.h \
     topselectionpane.h \
-    bottomselectionpane.h \
     detail.h \
     wire.h \
     gates/not.h \
@@ -74,7 +72,6 @@ FORMS += \
     sideselectionpane.ui \
     field.ui \
     topselectionpane.ui \
-    bottomselectionpane.ui \
     blackboxwindow.ui \
     buttongroup.ui \
     slidebar.ui
