@@ -433,10 +433,18 @@ QString BlackBoxWindow::execute()
                                 if(!gates.contains(outs.gate)) {
                                     for(int l = 0; l < fullGates[i]->outputs[j].size(); l++) {
                                         if(l != k) {
-                                            if(fullGates.contains(fullGates[i]->outputs[j][l].gate)) {
+
+                                            // TEMP COMMENT, SEE AGAIN INCASE A CHANGE IS NEEDED
+                                            // this allows for outputs to propogate in black boxes
+                                            // but issues occour when an output gate isnt connected
+                                            // (should this be convention?). also what made this
+                                            // nessesary in the first place??
+
+
+                                            /* if(fullGates.contains(fullGates[i]->outputs[j][l].gate)) {
                                                 skip = true;
                                                 break;
-                                            }
+                                            } */
                                         }
                                     }
                                 }

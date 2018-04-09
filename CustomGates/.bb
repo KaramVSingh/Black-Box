@@ -1,9 +1,0 @@
-GATES = 1:
-0. CLOCK
-~
-CONNECTIONS:
-~
-INPUTS = 0:
-~
-OUTPUTS = 0:
-~

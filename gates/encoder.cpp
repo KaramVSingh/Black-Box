@@ -78,13 +78,18 @@ QImage Encoder::toImage(float zoom)
     image.fill(Qt::white);
     QPainter paint;
     QPen pen(Qt::black);
-    pen.setWidth(2);
+    pen.setWidth(3);
     paint.begin(&image);
     paint.setPen(pen);
 
-    paint.drawLine(QPoint(GRID_DENSITY, 0), QPoint(GRID_DENSITY, length));
-    paint.drawLine(QPoint(GRID_DENSITY, 0), QPoint(width - GRID_DENSITY, GRID_DENSITY));
-    paint.drawLine(QPoint(width - GRID_DENSITY, GRID_DENSITY), QPoint(GRID_DENSITY, length));
+    paint.drawLine(QPoint(GRID_DENSITY, 0), QPoint(width - 16 - GRID_DENSITY, 0));
+    paint.drawLine(QPoint(width - 16 - GRID_DENSITY, length - 1), QPoint(GRID_DENSITY, length - 1));
+    pen.setWidth(2);
+    paint.setPen(pen);
+    paint.drawLine(QPoint(width - 16 - GRID_DENSITY, 0), QPoint(width - GRID_DENSITY, 16));
+    paint.drawLine(QPoint(width - GRID_DENSITY, 16), QPoint(width - GRID_DENSITY, length - 16));
+    paint.drawLine(QPoint(width - GRID_DENSITY, length - 16), QPoint(width - 16 - GRID_DENSITY, length));
+    paint.drawLine(QPoint(GRID_DENSITY, length), QPoint(GRID_DENSITY, 0));
 
     for(int i = 0; i < numberOfBits; i++) {
         paint.drawLine(QPoint(0, (i + 1) * GRID_DENSITY), QPoint(GRID_DENSITY, (i + 1) * GRID_DENSITY));
@@ -92,7 +97,7 @@ QImage Encoder::toImage(float zoom)
 
     pen.setWidth(4);
     paint.setPen(pen);
-    paint.drawLine(QPoint(width, GRID_DENSITY), QPoint(width - GRID_DENSITY, GRID_DENSITY));
+    paint.drawLine(QPoint(width, GRID_DENSITY), QPoint(width - GRID_DENSITY + 1, GRID_DENSITY));
 
     paint.end();
 
