@@ -40,6 +40,7 @@ public:
     QVector<int> clkVals;
     QVector<int> inputPortBits;
     QVector<int> outputPortBits;
+    QVector<int> triggeredPorts;
 
 
 private:

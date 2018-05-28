@@ -40,6 +40,12 @@ void CustomGate::update()
         return;
     }
 
+    // we need to go to the state where the rising edge ports go back to 0
+    triggeredPorts.clear();
+    for(int i = 0; i < risingEdgePorts.size(); i++) {
+        triggeredPorts.append(risingEdgePorts[i]);
+    }
+
     QString dir(QFileInfo(".").absolutePath());
     dir.append("/BlackBox/CustomGates/");
     dir.append(gateName);
@@ -308,7 +314,6 @@ QString CustomGate::getWord(QString content, int *index)
 
 int CustomGate::execute(int index)
 {
-    qDebug() << state;
     QString dir(QFileInfo(".").absolutePath());
     dir.append("/BlackBox/CustomGates/");
     dir.append(gateName);
@@ -343,6 +348,11 @@ int CustomGate::execute(int index)
         } else {
             refinedResult.append(results[i]);
         }
+    }
+
+    // CHANGES WILL HAVE TO BE MADE HERE TOO
+    for(int i = 0; i < triggeredPorts.size(); i++) {
+        refinedResult[triggeredPorts[i]] = 0;
     }
 
     int numberOfLines = 0;
