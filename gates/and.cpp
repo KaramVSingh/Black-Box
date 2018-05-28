@@ -28,6 +28,22 @@ int And::execute(int index)
     return 1;
 }
 
+Gate* And::removeInput(int index)
+{
+    Gate* save = inputs[index].gate;
+    inputs[index].gate = NULL;
+    takenInputs.remove(takenInputs.indexOf(index));
+    return save;
+}
+
+void And::removeOutput(int index)
+{
+    for(int i = 0; i < outputs[index].size(); i++) {
+        outputs[index].removeLast();
+    }
+    takenOutputs.remove(takenOutputs.indexOf(index));
+}
+
 // this function returns false if unable to add the input and manages inputs
 bool And::addInput(Gate* newGate, int thisIndex, int otherIndex)
 {
@@ -65,9 +81,6 @@ bool And::addOutput(Gate* newGate, int thisIndex, int otherIndex)
     // gates connected to a single output port
 
     takenOutputs.append(thisIndex);
-    if(newGate->toType() == GateType::CUSTOM) {
-        return true;
-    }
     Connection newConnection;
     newConnection.gate = newGate;
     newConnection.otherIndex = otherIndex;

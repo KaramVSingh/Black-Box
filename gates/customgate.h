@@ -15,17 +15,6 @@
 class CustomGate: public Gate
 {
 public:
-
-    struct GateToGateConnection {
-        int startGate, startIndex;
-        int endGate, endIndex;
-    };
-
-    struct PointToGateConnection {
-        QString name;
-        int gateNumber, connectionIndex;
-    };
-
     CustomGate(QPoint l): Gate(l) { numberOfInputLines = 0; inputs.resize(numberOfInputLines); numberOfOutputLines = 0; outputs.resize(numberOfOutputLines); width = 0; length = 0; }
     int execute(int index);
     bool addInput(Gate* newGate, int thisIndex, int otherIndex);
@@ -37,17 +26,25 @@ public:
     void changeValue() {}
     GateType toType();
     QString toString();
+    Gate* removeInput(int index);
+    void removeOutput(int index);
     bool build(QString fileName);
-    QVector<DFlipFlop*> getAllDFlipFlops();
-    QVector<Clock*> getAllClocks();
-    QVector<Gate*> internalGates;
-    QVector<QList<Gate::Connection>> inputPointers;
-    QVector<Gate::Connection> outputPointers;
+    int numberOfStates = 0;
+
+    void setState(int state);
+    void update();
+    void change();
+    int state = 0;
+    int nextState = 0;
+    QVector<int> clockPorts;
+    QVector<int> clkVals;
+    QVector<int> inputPortBits;
+    QVector<int> outputPortBits;
 
 
 private:
-    QVector<DFlipFlop*> dFlipFlops;
-    QVector<Clock*> clocks;
+    int referenceIndex;
+    int lengthOfRow;
     QImage gateImage;
     QString gateName;
     int getInt(QString content, int* index);

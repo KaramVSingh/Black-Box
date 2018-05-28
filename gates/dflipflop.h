@@ -17,11 +17,15 @@ public:
     void changeValue() {}
     GateType toType();
     QString toString();
+    Gate* removeInput(int index);
+    void removeOutput(int index);
 
     int state = 0, nextState = 0;
     int clkVal = 0;
     void update();
     void change();
+    void setState(int state);
+    QVector<int> clockPorts;
 };
 
 #endif // DFLIPFLOP_H

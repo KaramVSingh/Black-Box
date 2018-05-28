@@ -57,9 +57,6 @@ bool Decoder::addOutput(Gate *newGate, int thisIndex, int otherIndex)
     }
 
     takenOutputs.append(thisIndex);
-    if(newGate->toType() == GateType::CUSTOM) {
-        return true;
-    }
     Connection newConnection;
     newConnection.gate = newGate;
     newConnection.otherIndex = otherIndex;
@@ -83,9 +80,12 @@ QImage Decoder::toImage(float zoom)
     paint.begin(&image);
     paint.setPen(pen);
 
-    paint.drawLine(QPoint(GRID_DENSITY, GRID_DENSITY), QPoint(width - GRID_DENSITY, 0));
-    paint.drawLine(QPoint(GRID_DENSITY, GRID_DENSITY), QPoint(width - GRID_DENSITY, length));
-    paint.drawLine(QPoint(width - GRID_DENSITY, length), QPoint(width - GRID_DENSITY, 0));
+    paint.drawLine(QPoint(GRID_DENSITY, GRID_DENSITY), QPoint(2 * GRID_DENSITY, 0));
+    paint.drawLine(QPoint(2 * GRID_DENSITY, 1), QPoint(width - GRID_DENSITY, 1));
+    paint.drawLine(QPoint(width - GRID_DENSITY, 1), QPoint(width - GRID_DENSITY, length));
+    paint.drawLine(QPoint(width - GRID_DENSITY, length - 1), QPoint(2 * GRID_DENSITY, length - 1));
+    paint.drawLine(QPoint(2 * GRID_DENSITY, length), QPoint(GRID_DENSITY, length - GRID_DENSITY));
+    paint.drawLine(QPoint(GRID_DENSITY, length - GRID_DENSITY), QPoint(GRID_DENSITY, GRID_DENSITY));
 
     for(int i = 0; i < numberOfBits; i++) {
         paint.drawLine(QPoint(width - GRID_DENSITY, (i + 1) * GRID_DENSITY), QPoint(width, (i + 1) * GRID_DENSITY));
@@ -93,12 +93,28 @@ QImage Decoder::toImage(float zoom)
 
     pen.setWidth(4);
     paint.setPen(pen);
-    paint.drawLine(QPoint(0, GRID_DENSITY), QPoint(GRID_DENSITY, GRID_DENSITY));
+    paint.drawLine(QPoint(0, GRID_DENSITY), QPoint(GRID_DENSITY - 1, GRID_DENSITY));
 
     paint.end();
 
     image = image.scaled((int)(width * zoom), (int)(length * zoom), Qt::KeepAspectRatio);
     return image;
+}
+
+Gate* Decoder::removeInput(int index)
+{
+    Gate* save = inputs[index].gate;
+    inputs[index].gate = NULL;
+    takenInputs.remove(takenInputs.indexOf(index));
+    return save;
+}
+
+void Decoder::removeOutput(int index)
+{
+    for(int i = 0; i < outputs[index].size(); i++) {
+        outputs[index].removeLast();
+    }
+    takenOutputs.remove(takenOutputs.indexOf(index));
 }
 
 QVector<QPoint> Decoder::getInputLocations()

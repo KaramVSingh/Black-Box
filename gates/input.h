@@ -15,8 +15,11 @@ public:
     QVector<QPoint> getInputLocations();
     QVector<QPoint> getOutputLocations();
     void changeValue();
+    void setValue(int value);
     GateType toType();
     QString toString();
+    Gate* removeInput(int index);
+    void removeOutput(int index);
     void setMultiBit(bool flag);
 
     int value = 0;

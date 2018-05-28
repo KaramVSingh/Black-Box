@@ -18,6 +18,19 @@ int Output::execute(int index)
     return value;
 }
 
+Gate* Output::removeInput(int index)
+{
+    Gate* save = inputs[index].gate;
+    inputs[index].gate = NULL;
+    takenInputs.remove(takenInputs.indexOf(index));
+    return save;
+}
+
+void Output::removeOutput(int index)
+{
+    return;
+}
+
 bool Output::addInput(Gate* newGate, int thisIndex, int otherIndex)
 {
     if(takenInputs.contains(thisIndex)) {

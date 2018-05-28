@@ -209,331 +209,603 @@ QString BlackBoxWindow::execute()
     // first thing we need to do is get the name of the new gate.
     // it cannot be a keyword so it can not be CONNECTIONS, GATES, INPUTS, or OUTPUTS
     QString gateName = getText();
-    QString fileName = gateName + ".bb";
+    QString fileName = gateName;
+    fileName = gateName + ".bb";
 
-    QVector<Gate*> fullGates;
+    QString gateDefinition;
+    int numberOfInputs = 0, numberOfOutputs = 0, numberOfStates = 1;
 
-    QString gateDefinition = "";
-    gateDefinition += "GATES = ";
-
-    // we want to create an array of basic gates
+    // first we want to count the inputs and outputs so we can get an idea of all of the states
     for(int i = 0; i < gates.size(); i++) {
-        if(gates[i]->toType() != GateType::CUSTOM) {
-            // if(gates[i]->toType() != GateType::OUTPUT) {
-                fullGates.append(gates[i]);
-            // }
-        } else {
-            CustomGate* gate = static_cast<CustomGate*>(gates[i]);
-            fullGates.append(gate->internalGates);
-            blackBoxGates.append(gate->internalGates);
-        }
-    }
-
-    gateDefinition += QString::number(fullGates.size()) + ":\r\n";
-
-    for(int i = 0; i < fullGates.size(); i++) {
-        gateDefinition += QString::number(i) + ". " + fullGates[i]->toString() + "\r\n";
-    }
-
-    gateDefinition += "~\r\n";
-    gateDefinition += "CONNECTIONS:\r\n";
-
-    for(int i = 0; i < fullGates.size(); i++) {
-        for(int j = 0; j < fullGates[i]->takenInputs.size(); j++) {
-            int inputIndex = fullGates[i]->takenInputs[j];
-            Gate::Connection inputConnection = fullGates[i]->inputs[inputIndex];
-            if(fullGates.contains(inputConnection.gate)) {
-                gateDefinition += QString::number(fullGates.indexOf(inputConnection.gate)) + ",";
-                gateDefinition += QString::number(inputConnection.otherIndex) + " -> ";
-                gateDefinition += QString::number(i) + "," + QString::number(inputIndex) + "\r\n";
-            }
-        }
-    }
-
-    gateDefinition += "~\r\n";
-    gateDefinition += "INPUTS = ";
-    QString inputsString = "";
-
-    int numberOfInputs = 0;
-    QVector<Gate::Connection> inputsChecked;
-    QVector<Gate::Connection> handledOpenBlackBoxPort;
-    for(int i = 0; i < fullGates.size(); i++) {
-        for(int j = 0; j < fullGates[i]->numberOfInputLines; j++) {
-            if(fullGates[i]->takenInputs.contains(j)) {
-                if(!fullGates.contains(fullGates[i]->inputs[j].gate)) {
-                    // we need to look at all of the outputs for the inputs so as to see if we have
-                    // already looked at this input
-                    int indexOfThisOutput = fullGates[i]->inputs[j].otherIndex;
-                    QList<Gate::Connection> outsOfIn = fullGates[i]->inputs[j].gate->outputs[indexOfThisOutput];
-                    bool hasBeenHandled = false;
-                    // the list contains every output of the gate that is connected to that point
-                    for(int k = 0; k < inputsChecked.size(); k++) {
-                        if(inputsChecked[k].gate == fullGates[i]->inputs[j].gate) {
-                            if(inputsChecked[k].otherIndex == fullGates[i]->inputs[j].otherIndex) {
-                                hasBeenHandled = true;
-                                break;
-                            }
-                        }
-                    }
-                    if(hasBeenHandled) {
-                        break;
-                    }
-
-                    if(!hasBeenHandled) {
-                        inputsChecked.append(fullGates[i]->inputs[j]);
-                        QString name = focusAndGetText(fullGates[i], j, true);
-
-                        if(name == "") {
-                            continue;
-                        }
-
-                        inputsString += QString::number(numberOfInputs++) + ". " + name + "~";
-                        for(int k = 0; k < outsOfIn.size(); k++) {
-                            if(fullGates.contains(outsOfIn[k].gate)) {
-                                inputsString += " -> " + QString::number(fullGates.indexOf(outsOfIn[k].gate)) + "," + QString::number(outsOfIn[k].otherIndex);
-                            }
-                        }
-
-                        inputsString += "~\r\n";
-                    }
-                }
-            } else {
-                // there is nothing connected to this port therefore it is an input.
-                // we have two options, ignore it and not add it or add it.
-                // it can only possibly be connected to this gate
-
-                // we also want to ignore it if its hanging and not used in the gate anymore:
-
-                int blackBoxNumber = -1;
-                bool isInBlackBox = false;
-                // we have to also set all of the inputs connected to the same port if that is an issue
-                for(int k = 0; k < blackBoxGates.size(); k++) {
-                    if(blackBoxGates[k].contains(fullGates[i])) {
-                        isInBlackBox = true;
-                        blackBoxNumber = k;
-                    }
-                }
-
-                if(isInBlackBox) {
-                    CustomGate* bbGate = getAssociatedBlackBox(fullGates[i]);
-                    bool isStillUsed = false;
-                    for(int k = 0; k < bbGate->inputPointers.size(); k++) {
-                        for(int l = 0; l < bbGate->inputPointers[k].size(); l++) {
-                            if(bbGate->inputPointers[k][l].gate == fullGates[i] && bbGate->inputPointers[k][l].otherIndex == j) {
-                                isStillUsed = true;
-                                break;
-                            }
-                        }
-
-                        if(isStillUsed) {
-                            break;
-                        }
-                    }
-
-                    if(!isStillUsed) {
-                        break;
-                    }
-                    // the we need to apply the change we make to this input to all of the input ports
-
-                    // we need all of the gates connected to this port
-                    int num = 0;
-                    for(int k = 0; k < gates.size(); k++) {
-                        if(gates[k]->toType() == GateType::CUSTOM) {
-                            if(num == blackBoxNumber) {
-                                CustomGate* tempGate = static_cast<CustomGate*>(gates[k]);
-
-                                int portIndex = 0;
-                                for(int l = 0; l < tempGate->inputPointers.size(); l++) {
-                                    for(int r = 0; r < tempGate->inputPointers[l].size(); r++) {
-                                        if(tempGate->inputPointers[l][r].gate == fullGates[i]) {
-                                            if(tempGate->inputPointers[l][r].otherIndex == j) {
-                                                portIndex = l;
-                                            }
-                                        }
-                                    }
-                                }
-
-                                QList<Gate::Connection> port = tempGate->inputPointers[portIndex];
-                                // we should add input for all of these
-
-                                bool alreadyHandled = false;
-                                for(int l = 0; l < handledOpenBlackBoxPort.size(); l++) {
-                                    if(handledOpenBlackBoxPort[l].gate == port[0].gate) {
-                                        if(handledOpenBlackBoxPort[l].otherIndex == port[0].otherIndex) {
-                                            alreadyHandled = true;
-                                            break;
-                                        }
-                                    }
-                                }
-
-                                if(alreadyHandled) {
-                                    break;
-                                }
-
-                                QString name = focusAndGetText(fullGates[i], j, true);
-                                inputsString += QString::number(numberOfInputs++) + ". ";
-                                inputsString += name + "~";
-
-                                if(name == "") {
-                                    continue;
-                                }
-
-                                for(int l = 0; l < port.size(); l++) {
-                                    inputsString += " -> " + QString::number(fullGates.indexOf(port[l].gate)) + "," + QString::number(port[l].otherIndex);
-                                    Gate::Connection handledOpenPort;
-                                    handledOpenPort.gate = port[l].gate;
-                                    handledOpenPort.otherIndex = port[l].otherIndex;
-                                    handledOpenBlackBoxPort.append(handledOpenPort);
-                                }
-
-                                inputsString += "~\r\n";
-                                break;
-                            } else {
-                                num++;
-                            }
-                        }
-                    }
-
-                } else {
-                    QString name = focusAndGetText(fullGates[i], j, true);
-
-                    if(name == "") {
-                        continue;
-                    }
-
-                    inputsString += QString::number(numberOfInputs++) + ". ";
-                    inputsString += name + "~ -> " + QString::number(i) + "," + QString::number(j) + "~\r\n";
-                }
-            }
-        }
-    }
-
-    inputsString += "~\r\n";
-    gateDefinition += QString::number(numberOfInputs) + ":\r\n" + inputsString;
-
-    gateDefinition += "OUTPUTS = ";
-    QString outputsString = "";
-    int numberOfOutputs = 0;
-
-    for(int i = 0; i < fullGates.size(); i++) {
-        for(int j = 0; j < fullGates[i]->outputs.size(); j++) {
-            if(fullGates[i]->takenOutputs.contains(j)) {
-                for(int k = 0; k < fullGates[i]->outputs[j].size(); k++) {
-                    Gate::Connection outs = fullGates[i]->outputs[j][k];
-                    if(fullGates.contains(outs.gate)) {
-                        if(outs.gate->toType() == GateType::OUTPUT) {
-                            // we are elligible to add an output here:
-
-                            // this check is so that if there is a gate connected to a black box
-                            // port that has an output on it, we ignore it:
-                            bool skip = false;
-                            if(fullGates[i]->outputs[j].size() > 1) {
-                                // we want to be checking if there is an output inside but the
-                                // outside is connected to a regular gate
-                                if(!gates.contains(outs.gate)) {
-                                    for(int l = 0; l < fullGates[i]->outputs[j].size(); l++) {
-                                        if(l != k) {
-
-                                            // TEMP COMMENT, SEE AGAIN INCASE A CHANGE IS NEEDED
-                                            // this allows for outputs to propogate in black boxes
-                                            // but issues occour when an output gate isnt connected
-                                            // (should this be convention?). also what made this
-                                            // nessesary in the first place??
-
-
-                                            /* if(fullGates.contains(fullGates[i]->outputs[j][l].gate)) {
-                                                skip = true;
-                                                break;
-                                            } */
-                                        }
-                                    }
-                                }
-                            }
-
-                            if(skip) {
-                                continue;
-                            }
-
-                            QString name;
-                            if(getAssociatedBlackBox(fullGates[i]) == NULL) {
-                                name = focusAndGetText(fullGates[i], j, false);
-                            } else {
-                                if(gates.contains(outs.gate)) {
-                                    name = focusAndGetText(fullGates[i], j, false);
-                                } else {
-                                    bool foundMatch = false;
-                                    int indexOfOtherOutput = -1;
-                                    for(int l = 0; l < fullGates[i]->outputs[j].size(); l++) {
-                                        if(k != l) {
-                                            if(fullGates[i]->outputs[j][l].gate->toType() == GateType::OUTPUT) {
-                                                if(gates.contains(fullGates[i]->outputs[j][l].gate)) {
-                                                    foundMatch = true;
-                                                    continue;
-                                                } else {
-                                                    indexOfOtherOutput = l;
-                                                }
-                                            }
-                                        }
-                                    }
-
-                                    if(!foundMatch) {
-                                        if(indexOfOtherOutput < k) {
-                                            name = focusAndGetText(fullGates[i], j, false);
-                                        }
-                                    }
-                                }
-                            }
-
-                            if(name == "") {
-                                continue;
-                            }
-
-                            outputsString += QString::number(numberOfOutputs++) + ". " + name + "~ <- " + QString::number(i) + "," + QString::number(j) + "\r\n";
-                        } else {
-                            continue;
-                        }
-                    } else {
-                        // we are elligible to add an output here:
-                        QString name = focusAndGetText(fullGates[i], j, false);
-
-                        if(name == "") {
-                            continue;
-                        }
-
-                        outputsString += QString::number(numberOfOutputs++) + ". " + name + "~ <- " + QString::number(i) + "," + QString::number(j) + "\r\n";
-                    }
-                }
-            } else {
-                CustomGate* bbGate = getAssociatedBlackBox(fullGates[i]);
-                bool isStillUsed = false;
-                if(bbGate != NULL) {
-                    foreach(Gate::Connection c, bbGate->outputPointers) {
-                        if(c.gate == fullGates[i] && c.otherIndex == j) {
-                            isStillUsed = true;
-                            break;
-                        }
-                    }
-
-                    if(!isStillUsed) {
-                        continue;
-                    }
-                }
-
-                // we are elligible to add an output here:
-                QString name = focusAndGetText(fullGates[i], j, false);
-
+        for(int j = 0; j < gates[i]->numberOfInputLines; j++) {
+            // first the case where there is nothing connected to the input
+            if(!gates[i]->takenInputs.contains(j)) {
+                // if we are in this condition, we have a new input that is connected
+                // to no other gates
+                QString name = focusAndGetText(gates[i], j, true);
                 if(name == "") {
                     continue;
                 }
+                inputNames.append(name);
+                numberOfInputs++;
+                // now we want to attatch an input which we can flip
+                if(gates[i]->toType() == GateType::CUSTOM) {
+                    // in this case we need to check if the input we are on is a multiBit
+                    CustomGate* customGate = static_cast<CustomGate*>(gates[i]);
+                    if(customGate->clockPorts.contains(j)) {
+                        // that means we have a clock input that we need to propogate
+                        clockPorts.append(numberOfInputs - 1);
+                    }
+                    Encoder* translater = new Encoder(QPoint(std::numeric_limits<int>::max(), std::numeric_limits<int>::max()));
+                    translater->setNumberOfBits(customGate->inputPortBits[j]);
+                    inputTranslaters.append(translater);
+                    numberOfBitsPerInput.append(translater->numberOfBits);
+                    translater->addOutput(gates[i], 0, j);
+                    gates[i]->addInput(translater, j, 0);
+                    for(int k = 0; k < translater->numberOfBits; k++) {
+                        Input* newInput = new Input(QPoint(std::numeric_limits<int>::max(), std::numeric_limits<int>::max()));
+                        newInput->addOutput(translater, 0, k);
+                        translater->addInput(newInput, k, 0);
+                        testInputs.append(newInput);
+                    }
+                } else if(gates[i]->toType() == GateType::DECODER) {
+                    // in this case we have a multibit and we need to make a multiBit
+                    Encoder* translater = new Encoder(QPoint(std::numeric_limits<int>::max(), std::numeric_limits<int>::max()));
+                    translater->setNumberOfBits(gates[i]->numberOfOutputLines);
+                    inputTranslaters.append(translater);
+                    numberOfBitsPerInput.append(translater->numberOfBits);
+                    translater->addOutput(gates[i], 0, 0);
+                    gates[i]->addInput(translater, 0, 0);
+                    for(int k = 0; k < translater->numberOfBits; k++) {
+                        Input* newInput = new Input(QPoint(std::numeric_limits<int>::max(), std::numeric_limits<int>::max()));
+                        newInput->addOutput(translater, 0, k);
+                        translater->addInput(newInput, k, 0);
+                        testInputs.append(newInput);
+                    }
+                } else {
+                    if(gates[i]->toType() == GateType::DFLIPFLOP) {
+                        if(j == 1) {
+                            // this means that we are in the clock input port
+                            clockPorts.append(numberOfInputs - 1);
+                        }
+                    }
+                    Input* newInput = new Input(QPoint(std::numeric_limits<int>::max(), std::numeric_limits<int>::max()));
+                    newInput->addOutput(gates[i], 0, j);
+                    gates[i]->addInput(newInput, j, 0);
+                    // we need to remember to recheck this later to detatch it
+                    testInputs.append(newInput);
+                    numberOfBitsPerInput.append(1);
+                }
+                continue;
+            }
 
-                outputsString += QString::number(numberOfOutputs++) + ". " + name + "~ <- " + QString::number(i) + "," + QString::number(j) + "\r\n";
+            // then the case in which there is something connected:
+            // we need to make sure to check that there are no other shared connections.
+            if(!gates.contains(gates[i]->inputs[j].gate)) {
+                // if we have alread checked a gate connected to this gate through a
+                // mutual input, we need to weed it out here:
+                bool hasBeenChecked = false;
+                for(int k = 0; k < checkedInputs.size(); k++) {
+                    if(checkedInputs[k].gate == gates[i]->inputs[j].gate) {
+                        if(checkedInputs[k].otherIndex == gates[i]->inputs[j].otherIndex) {
+                            hasBeenChecked = true;
+                            break;
+                        }
+                    }
+                }
+
+                if(hasBeenChecked) {
+                    continue;
+                }
+
+                // this is the case where the connected gate is out of the selected area
+                QString name = focusAndGetText(gates[i], j, true);
+                if(name == "") {
+                    continue;
+                }
+                inputNames.append(name);
+                numberOfInputs++;
+                int portIndex = gates[i]->inputs[j].otherIndex;
+                Gate* inputGate = gates[i]->inputs[j].gate;
+                QVector<Gate::Connection> connectedGates;
+                for(int k = 0; k < gates[i]->inputs[j].gate->outputs[portIndex].size(); k++) {
+                    connectedGates.append(gates[i]->inputs[j].gate->outputs[portIndex][k]);
+                }
+
+                for(int k = 0; k < connectedGates.size(); k++) {
+                    // here we can check if the port is a clock port
+                    if(connectedGates[k].gate->toType() == GateType::DFLIPFLOP) {
+                        if(connectedGates[k].otherIndex == 1) {
+                            clockPorts.append(numberOfInputs - 1);
+                            break;
+                        }
+                    } else if(connectedGates[k].gate->toType() == GateType::CUSTOM) {
+                        CustomGate* customGate = static_cast<CustomGate*>(connectedGates[k].gate);
+                        if(customGate->clockPorts.contains(connectedGates[k].otherIndex)) {
+                            clockPorts.append(numberOfInputs - 1);
+                            break;
+                        }
+                    }
+                }
+
+                // now we need to handle multibit inputs
+                if(gates[i]->toType() == GateType::CUSTOM) {
+                    // in this case we need to check if the input we are on is a multiBit
+                    CustomGate* customGate = static_cast<CustomGate*>(gates[i]);
+                    Encoder* translater = new Encoder(QPoint(std::numeric_limits<int>::max(), std::numeric_limits<int>::max()));
+                    translater->setNumberOfBits(customGate->inputPortBits[j]);
+                    inputTranslaters.append(translater);
+                    numberOfBitsPerInput.append(translater->numberOfBits);
+                    for(int k = 0; k < translater->numberOfBits; k++) {
+                        Input* newInput = new Input(QPoint(std::numeric_limits<int>::max(), std::numeric_limits<int>::max()));
+                        newInput->addOutput(translater, 0, k);
+                        translater->addInput(newInput, k, 0);
+                        testInputs.append(newInput);
+                    }
+
+                    // now we have set up the translater, we just have to connect the translater to
+                    // all of the connected gates
+                    for(int k = 0; k < connectedGates.size(); k++) {
+                        Gate::Connection checkedInput;
+                        checkedInput.gate = gates[i]->inputs[j].gate;
+                        checkedInput.otherIndex = gates[i]->inputs[j].otherIndex;
+                        checkedInputs.append(checkedInput);
+
+                        InputConnection newConnection;
+                        newConnection.externalGate = inputGate;
+                        newConnection.externalIndex = portIndex;
+                        newConnection.internalGate = connectedGates[k].gate;
+                        newConnection.internalIndex = connectedGates[k].otherIndex;
+                        detatchedInputs.append(newConnection);
+
+                        // now we have to formally detatch the old input
+                        connectedGates[k].gate->removeInput(connectedGates[k].otherIndex);
+
+                        // and then we have to reattatch it all
+                        connectedGates[k].gate->addInput(translater, connectedGates[k].otherIndex, 0);
+                        translater->addOutput(connectedGates[k].gate, 0, connectedGates[k].otherIndex);
+                    }
+                } else if(gates[i]->toType() == GateType::DECODER) {
+                    // in this case we have a multibit and we need to make a multiBit
+                    Encoder* translater = new Encoder(QPoint(std::numeric_limits<int>::max(), std::numeric_limits<int>::max()));
+                    translater->setNumberOfBits(gates[i]->numberOfOutputLines);
+                    inputTranslaters.append(translater);
+                    numberOfBitsPerInput.append(translater->numberOfBits);
+                    for(int k = 0; k < translater->numberOfBits; k++) {
+                        Input* newInput = new Input(QPoint(std::numeric_limits<int>::max(), std::numeric_limits<int>::max()));
+                        newInput->addOutput(translater, 0, k);
+                        translater->addInput(newInput, k, 0);
+                        testInputs.append(newInput);
+                    }
+
+                    // now we have set up the translater, we just have to connect the translater to
+                    // all of the connected gates
+                    for(int k = 0; k < connectedGates.size(); k++) {
+                        Gate::Connection checkedInput;
+                        checkedInput.gate = gates[i]->inputs[j].gate;
+                        checkedInput.otherIndex = gates[i]->inputs[j].otherIndex;
+                        checkedInputs.append(checkedInput);
+
+                        InputConnection newConnection;
+                        newConnection.externalGate = inputGate;
+                        newConnection.externalIndex = portIndex;
+                        newConnection.internalGate = connectedGates[k].gate;
+                        newConnection.internalIndex = connectedGates[k].otherIndex;
+                        detatchedInputs.append(newConnection);
+
+                        // now we have to formally detatch the old input
+                        connectedGates[k].gate->removeInput(connectedGates[k].otherIndex);
+
+                        // and then we have to reattatch it all
+                        connectedGates[k].gate->addInput(translater, connectedGates[k].otherIndex, 0);
+                        translater->addOutput(connectedGates[k].gate, 0, connectedGates[k].otherIndex);
+                    }
+                } else {
+                    Input* newInput = new Input(QPoint(std::numeric_limits<int>::max(), std::numeric_limits<int>::max()));
+                    testInputs.append(newInput);
+                    numberOfBitsPerInput.append(1);
+                    for(int k = 0; k < connectedGates.size(); k++) {
+                        // each index of outputs points to an index of the outputs.
+                        // this is a list of all of the gates connected to that port
+                        // we want to compile a list of all of the gates connected to that port.
+                        // these gates must not be tested again in the future
+                        Gate::Connection checkedInput;
+                        checkedInput.gate = gates[i]->inputs[j].gate;
+                        checkedInput.otherIndex = gates[i]->inputs[j].otherIndex;
+                        checkedInputs.append(checkedInput);
+
+                        InputConnection newConnection;
+                        newConnection.externalGate = inputGate;
+                        newConnection.externalIndex = portIndex;
+                        newConnection.internalGate = connectedGates[k].gate;
+                        newConnection.internalIndex = connectedGates[k].otherIndex;
+                        detatchedInputs.append(newConnection);
+
+                        // now we have to formally detatch the old input
+                        connectedGates[k].gate->removeInput(connectedGates[k].otherIndex);
+
+                        // and then proceed to reattatch it all
+                        connectedGates[k].gate->addInput(newInput, connectedGates[k].otherIndex, 0);
+                        newInput->addOutput(connectedGates[k].gate, 0, connectedGates[k].otherIndex);
+                    }
+                }
             }
         }
     }
 
-    outputsString += "~";
-    gateDefinition += QString::number(numberOfOutputs) + ":\r\n" + outputsString;
+    for(int i = 0; i < gates.size(); i++) {
+        if(gates[i]->toType() == GateType::OUTPUT) {
+            // if we are in this condition, we have an output which we deem
+            // available to add to the list
+            QString name = focusAndGetText(gates[i]->inputs[0].gate, gates[i]->inputs[0].otherIndex, false);
+            if(name == "") {
+                continue;
+            }
+            outputNames.append(name);
+            numberOfOutputs++;
+            int portIndex = gates[i]->inputs[0].otherIndex;
 
+            OutputConnection newConnection;
+            newConnection.internalGate = gates[i]->inputs[0].gate;
+            newConnection.internalIndex = gates[i]->inputs[0].otherIndex;
+            for(int k = 0; k < gates[i]->inputs[0].gate->outputs[portIndex].size(); k++) {
+                newConnection.externalGates.append(gates[i]->inputs[0].gate->outputs[portIndex][k].gate);
+                newConnection.externalIndexes.append(gates[i]->inputs[0].gate->outputs[portIndex][k].otherIndex);
+            }
+            detatchedOutputs.append(newConnection);
+
+            int otherPort = gates[i]->inputs[0].otherIndex;
+            gates[i]->inputs[0].gate->removeOutput(gates[i]->inputs[0].otherIndex);
+
+            // now we can attach an output which we can trigger
+            if(gates[i]->inputs[0].gate->toType() == GateType::CUSTOM) {
+                CustomGate* customGate = static_cast<CustomGate*>(gates[i]->inputs[0].gate);
+                Decoder* translater = new Decoder(QPoint(std::numeric_limits<int>::max(), std::numeric_limits<int>::max()));
+                translater->setNumberOfBits(customGate->outputPortBits[otherPort]);
+                outputTranslaters.append(translater);
+                numberOfBitsPerOutput.append(translater->numberOfBits);
+                translater->addInput(gates[i]->inputs[0].gate, 0, otherPort);
+                gates[i]->inputs[0].gate->addOutput(translater, otherPort, 0);
+                for(int k = 0; k < translater->numberOfBits; k++) {
+                    Output* newOutput = new Output(QPoint(std::numeric_limits<int>::max(), std::numeric_limits<int>::max()));
+                    newOutput->addInput(translater, 0, k);
+                    translater->addOutput(newOutput, k, 0);
+                    testOutputs.append(newOutput);
+                }
+            } else if(gates[i]->inputs[0].gate->toType() == GateType::ENCODER) {
+                Decoder* translater = new Decoder(QPoint(std::numeric_limits<int>::max(), std::numeric_limits<int>::max()));
+                translater->setNumberOfBits(gates[i]->inputs[0].gate->numberOfInputLines);
+                outputTranslaters.append(translater);
+                translater->addInput(gates[i]->inputs[0].gate, 0, otherPort);
+                gates[i]->inputs[0].gate->addOutput(translater, otherPort, 0);
+                numberOfBitsPerOutput.append(translater->numberOfBits);
+                for(int k = 0; k < translater->numberOfBits; k++) {
+                    Output* newOutput = new Output(QPoint(std::numeric_limits<int>::max(), std::numeric_limits<int>::max()));
+                    newOutput->addInput(translater, 0, k);
+                    translater->addOutput(newOutput, k, 0);
+                    testOutputs.append(newOutput);
+                }
+            } else {
+                Output* newOutput = new Output(QPoint(std::numeric_limits<int>::max(), std::numeric_limits<int>::max()));
+                newOutput->addInput(gates[i]->inputs[0].gate, 0, otherPort);
+                gates[i]->inputs[0].gate->addOutput(newOutput, otherPort, 0);
+                // we need to remember to recheck this later to detach it
+                testOutputs.append(newOutput);
+                numberOfBitsPerOutput.append(1);
+            }
+            continue;
+        }
+
+        for(int j = 0; j < gates[i]->numberOfOutputLines; j++) {
+            if(!gates[i]->takenOutputs.contains(j)) {
+                // if we are in this condition, we have a new output that is connected
+                // to no other gates
+                QString name = focusAndGetText(gates[i], j, false);
+                if(name == "") {
+                    continue;
+                }
+                outputNames.append(name);
+                numberOfOutputs++;
+                // now we want to attatch an output which we can trigger
+                if(gates[i]->toType() == GateType::CUSTOM) {
+                    CustomGate* customGate = static_cast<CustomGate*>(gates[i]);
+                    Decoder* translater = new Decoder(QPoint(std::numeric_limits<int>::max(), std::numeric_limits<int>::max()));
+                    translater->setNumberOfBits(customGate->outputPortBits[j]);
+                    outputTranslaters.append(translater);
+                    translater->addInput(gates[i], 0, j);
+                    gates[i]->addOutput(translater, j, 0);
+                    numberOfBitsPerOutput.append(translater->numberOfBits);
+                    for(int k = 0; k < translater->numberOfBits; k++) {
+                        Output* newOutput = new Output(QPoint(std::numeric_limits<int>::max(), std::numeric_limits<int>::max()));
+                        newOutput->addInput(translater, 0, k);
+                        translater->addOutput(newOutput, k, 0);
+                        testOutputs.append(newOutput);
+                    }
+                } else if(gates[i]->toType() == GateType::ENCODER) {
+                    Decoder* translater = new Decoder(QPoint(std::numeric_limits<int>::max(), std::numeric_limits<int>::max()));
+                    translater->setNumberOfBits(gates[i]->numberOfInputLines);
+                    outputTranslaters.append(translater);
+                    translater->addInput(gates[i], 0, 0);
+                    gates[i]->addOutput(translater, 0, 0);
+                    numberOfBitsPerOutput.append(translater->numberOfBits);
+                    for(int k = 0; k < translater->numberOfBits; k++) {
+                        Output* newOutput = new Output(QPoint(std::numeric_limits<int>::max(), std::numeric_limits<int>::max()));
+                        newOutput->addInput(translater, 0, k);
+                        translater->addOutput(newOutput, k, 0);
+                        testOutputs.append(newOutput);
+                    }
+                } else {
+                    Output* newOutput = new Output(QPoint(std::numeric_limits<int>::max(), std::numeric_limits<int>::max()));
+                    newOutput->addInput(gates[i], 0, j);
+                    gates[i]->addOutput(newOutput, j, 0);
+                    // we need to remember to recheck this later to detatch it
+                    testOutputs.append(newOutput);
+                    numberOfBitsPerOutput.append(1);
+                }
+                continue;
+            }
+
+            // we need to check all of the gates that are connected to the output port to
+            // see if the gate is an output
+            for(int k = 0; k < gates[i]->outputs[j].size(); k++) {
+                if(!gates.contains(gates[i]->outputs[j][k].gate)) {
+                    // if we are in this condition, then we have a port whos output is outside of
+                    // the selected area
+                    QString name = focusAndGetText(gates[i], j, false);
+                    if(name == "") {
+                        continue;
+                    }
+                    outputNames.append(name);
+                    numberOfOutputs++;
+
+                    OutputConnection newConnection;
+                    newConnection.internalGate = gates[i];
+                    newConnection.internalIndex = j;
+                    for(int l = 0; l < gates[i]->outputs[j].size(); l++) {
+                        newConnection.externalGates.append(gates[i]->outputs[j][l].gate);
+                        newConnection.externalIndexes.append(gates[i]->outputs[j][l].otherIndex);
+                    }
+                    detatchedOutputs.append(newConnection);
+
+                    gates[i]->removeOutput(j);
+
+                    // now we can attatch an output which we can trigger
+                    if(gates[i]->toType() == GateType::CUSTOM) {
+                        CustomGate* customGate = static_cast<CustomGate*>(gates[i]);
+                        Decoder* translater = new Decoder(QPoint(std::numeric_limits<int>::max(), std::numeric_limits<int>::max()));
+                        translater->setNumberOfBits(customGate->outputPortBits[j]);
+                        outputTranslaters.append(translater);
+                        translater->addInput(gates[i], 0, j);
+                        gates[i]->addOutput(translater, j, 0);
+                        numberOfBitsPerOutput.append(translater->numberOfBits);
+                        for(int k = 0; k < translater->numberOfBits; k++) {
+                            Output* newOutput = new Output(QPoint(std::numeric_limits<int>::max(), std::numeric_limits<int>::max()));
+                            newOutput->addInput(translater, 0, k);
+                            translater->addOutput(newOutput, k, 0);
+                            testOutputs.append(newOutput);
+                        }
+                    } else if(gates[i]->toType() == GateType::ENCODER) {
+                        Decoder* translater = new Decoder(QPoint(std::numeric_limits<int>::max(), std::numeric_limits<int>::max()));
+                        translater->setNumberOfBits(gates[i]->numberOfInputLines);
+                        outputTranslaters.append(translater);
+                        translater->addInput(gates[i], 0, 0);
+                        gates[i]->addOutput(translater, 0, 0);
+                        numberOfBitsPerOutput.append(translater->numberOfBits);
+                        for(int k = 0; k < translater->numberOfBits; k++) {
+                            Output* newOutput = new Output(QPoint(std::numeric_limits<int>::max(), std::numeric_limits<int>::max()));
+                            newOutput->addInput(translater, 0, k);
+                            translater->addOutput(newOutput, k, 0);
+                            testOutputs.append(newOutput);
+                        }
+                    } else {
+                        Output* newOutput = new Output(QPoint(std::numeric_limits<int>::max(), std::numeric_limits<int>::max()));
+                        newOutput->addInput(gates[i], 0, j);
+                        gates[i]->addOutput(newOutput, j, 0);
+                        // we need to remember to recheck this later to detatch it
+                        testOutputs.append(newOutput);
+                        numberOfBitsPerOutput.append(1);
+                    }
+                    break;
+                }
+            }
+        }
+    }
+
+    // this piece of code will count the number of states that are in the system
+    for(int i = 0; i < gates.size(); i++) {
+        if(gates[i]->toType() == GateType::DFLIPFLOP) {
+            numberOfStates *= 2;
+        } else if(gates[i]->toType() == GateType::CUSTOM) {
+            CustomGate* gate = static_cast<CustomGate*>(gates[i]);
+            numberOfStates *= gate->numberOfStates;
+        }
+    }
+
+    // now we are tasked with writing the number of states, inputs, outputs,
+    // their names, and the number of bits per port. this will allow us to build the gate
+    // first line will take the form # of inputs, # of outputs, # of states
+    gateDefinition += QString::number(numberOfInputs) + ",";
+    gateDefinition += QString::number(numberOfOutputs) + ",";
+    gateDefinition += QString::number(numberOfStates) + "\r\n";
+
+    // the next number of input lines will be formatted as follows:
+    // <NAME>%<is clk>%<number of bits>
+    for(int i = 0; i < numberOfInputs; i++) {
+        gateDefinition += inputNames[i] + "%";
+        if(clockPorts.contains(i)) {
+            gateDefinition += "1%";
+        } else {
+            gateDefinition += "0%";
+        }
+        gateDefinition += QString::number(numberOfBitsPerInput[i]) + "\r\n";
+    }
+
+    // the next number of output lines will be formatted as follows:
+    // <NAME>%<number of bits>
+    for(int i = 0; i < numberOfOutputs; i++) {
+        gateDefinition += outputNames[i] + "%";
+        gateDefinition += QString::number(numberOfBitsPerOutput[i]) + "\r\n";
+    }
+
+    int stateDigits = 0;
+    if(numberOfStates == 1) {
+        stateDigits = 1;
+    } else {
+        stateDigits = floor(log2(numberOfStates));
+    }
+
+    for(int i = 0; i < gates.size(); i++) {
+        if(gates[i]->toType() == GateType::DFLIPFLOP) {
+            DFlipFlop* gate = static_cast<DFlipFlop*>(gates[i]);
+            dFlipFlops.append(gate);
+            dFlipFlopStates.append(gate->state);
+        }
+
+        if(gates[i]->toType() == GateType::CUSTOM) {
+            CustomGate* gate = static_cast<CustomGate*>(gates[i]);
+            customGates.append(gate);
+            customGatesStates.append(gate->state);
+        }
+    }
+
+    // now we have established the number of inputs, outputs, and states
+    // we need to continue by creating the truth table
+    for(int stateValue = 0; stateValue < numberOfStates; stateValue++) {
+        for(int inputValue = 0; inputValue < pow(2, testInputs.size()); inputValue++) {
+            gateDefinition += toBinary(stateValue, stateDigits) + "|";
+            gateDefinition += toBinary(inputValue, testInputs.size()) + "|";
+            // we need to set the state of the system, that means setting the state of all
+            // of the custom gates and all of the dflipflops and all of the custom gates
+            // we also need to set all of the inputs properly:
+            int tempInputValue = inputValue;
+            for(int i = 0; i < testInputs.size(); i++) {
+                testInputs[i]->setValue(tempInputValue % 2);
+                tempInputValue /= 2;
+            }
+
+            int tempStateValue = stateValue;
+            for(int i = 0; i < dFlipFlops.size(); i++) {
+                dFlipFlops[i]->clkVal = 0;
+                dFlipFlops[i]->setState(tempStateValue % 2);
+                tempStateValue /= 2;
+            }
+
+            for(int i = 0; i < customGates.size(); i++) {
+                int customState = 0;
+                for(int j = 0; j < floor(log2(customGates[i]->numberOfStates)); j++) {
+                    customState += (tempStateValue % 2) * pow(2, j);
+                    tempStateValue /= 2;
+                }
+                customGates[i]->setState(customState);
+            }
+
+            // now the state has been set for the test run
+            QVector<int> results;
+            for(int i = 0; i < dFlipFlops.size(); i++) {
+                for(int j = 0; j < dFlipFlops.size(); j++) {
+                    dFlipFlops[j]->update();
+                }
+
+                for(int j = 0; j < dFlipFlops.size(); j++) {
+                    dFlipFlops[j]->change();
+                }
+            }
+
+            for(int i = 0; i < customGates.size(); i++) {
+                for(int j = 0; j < customGates.size(); j++) {
+                    customGates[j]->update();
+                }
+
+                for(int j = 0; j < customGates.size(); j++) {
+                    customGates[j]->change();
+                }
+            }
+
+            for(int i = 0; i < testOutputs.size(); i++) {
+                results.append(testOutputs[testOutputs.size() - i - 1]->execute(0));
+            }
+
+            int newState = 0;
+            int shift = 0;
+            for(int i = 0; i < dFlipFlops.size(); i++) {
+                newState += dFlipFlops[i]->state << shift;
+                shift++;
+            }
+
+            for(int i = 0; i < customGates.size(); i++) {
+                newState += customGates[i]->state << shift;
+                shift += floor(log2(customGates[i]->numberOfStates));
+            }
+
+            if(floor(log2(numberOfStates)) == 0) {
+                gateDefinition += "0|";
+            } else {
+                gateDefinition += toBinary(newState, floor(log2(numberOfStates))) + "|";
+            }
+
+            for(int i = 0; i < results.size(); i++) {
+                gateDefinition += QString::number(results[i]);
+            }
+
+            gateDefinition += "\r\n";
+        }
+    }
+
+    for(int i = 0; i < dFlipFlops.size(); i++) {
+        dFlipFlops[i]->setState(dFlipFlopStates[i]);
+    }
+
+    for(int i = 0; i < customGates.size(); i++) {
+        customGates[i]->setState(customGatesStates[i]);
+    }
+
+    // now we need to reset everything back to its origional setup
+    // first we have to remove the outputTranslaters
+    for(int i = 0; i < outputTranslaters.size(); i++) {
+        int internalIndex = outputTranslaters[i]->inputs[0].otherIndex;
+        outputTranslaters[i]->inputs[0].gate->removeOutput(internalIndex);
+        outputTranslaters[i]->removeInput(0);
+    }
+
+    // then we need to remove the inputTranslaters
+    for(int i = 0; i < inputTranslaters.size(); i++) {
+        for(int j = 0; j < inputTranslaters[i]->outputs[0].size(); j++) {
+            int internalIndex = inputTranslaters[i]->outputs[0][j].otherIndex;
+            inputTranslaters[i]->outputs[0][j].gate->removeInput(internalIndex);
+            inputTranslaters[i]->removeOutput(0);
+        }
+    }
+
+    // now we have removed all of the translaters, now we want to disconnect the
+    // input and output testers
+    for(int i = 0; i < testOutputs.size(); i++) {
+        int internalIndex = testOutputs[i]->inputs[0].otherIndex;
+        testOutputs[i]->inputs[0].gate->removeOutput(internalIndex);
+        testOutputs[i]->removeInput(0);
+    }
+
+    // now we need to remove the input testers
+    for(int i = 0; i < testInputs.size(); i++) {
+        for(int j = 0; j < testInputs[i]->outputs[0].size(); j++) {
+            int internalIndex = testInputs[i]->outputs[0][j].otherIndex;
+            testInputs[i]->outputs[0][j].gate->removeInput(internalIndex);
+            testInputs[i]->removeOutput(0);
+        }
+    }
+
+    // now we need to reattatch the old inputs and outputs
+    // for that we have detatched inputs and detatched outputs
+    // this should be a matter only with the qvector itself because it has all the info
+    for(int i = 0; i < detatchedOutputs.size(); i++) {
+        for(int j = 0; j < detatchedOutputs[i].externalGates.size(); j++) {
+            detatchedOutputs[i].internalGate->addOutput(detatchedOutputs[i].externalGates[j], detatchedOutputs[i].internalIndex, detatchedOutputs[i].externalIndexes[j]);
+        }
+    }
+
+    // same for detatched input
+    for(int i = 0; i < detatchedInputs.size(); i++) {
+        detatchedInputs[i].internalGate->addInput(detatchedInputs[i].externalGate, detatchedInputs[i].internalIndex, detatchedInputs[i].externalIndex);
+    }
 
     QString dir(QFileInfo(".").absolutePath());
     dir.append("/BlackBox/CustomGates/");
@@ -549,90 +821,45 @@ QString BlackBoxWindow::execute()
     return gateName;
 }
 
-CustomGate* BlackBoxWindow::getAssociatedBlackBox(Gate* gate)
+QString BlackBoxWindow::toBinary(int value, int digits)
 {
-    int blackBoxNumber = 0;
-    int i = 0;
-    bool isBb = false;
+    QVector<bool> bin;
+    QString result = "";
 
-    foreach(QVector<Gate*> bb, blackBoxGates) {
-        if(bb.contains(gate)) {
-            blackBoxNumber = i;
-            isBb = true;
-            break;
+    if(value == 0) {
+        for(int i = 0; i < digits; i++) {
+            result += "0";
         }
-        i++;
+
+        return result;
     }
 
-    if(!isBb) {
-        return NULL;
+    for(int i = 0; i < digits - (floor(log2(value)) + 1); i++) {
+        result += "0";
     }
 
-    i = 0;
-    foreach(Gate* g, gates) {
-        if(g->toType() == GateType::CUSTOM) {
-            if(i == blackBoxNumber) {
-                CustomGate* theGate = static_cast<CustomGate*>(g);
-                return theGate;
-            }
-            i++;
+    int storage = value;
+    while(storage != 0) {
+        if(storage % 2) {
+            bin.append(true);
+        } else {
+            bin.append(false);
+        }
+        storage /= 2;
+    }
+
+    for(int i = bin.size() - 1; i >= 0; i--) {
+        if(bin[i]) {
+            result += "1";
+        } else {
+            result += "0";
         }
     }
 
-    return NULL;
+    return result;
 }
 
 QString BlackBoxWindow::focusAndGetText(Gate *gate, int index, bool isInput) {
-    bool isInBlackBox = false;
-    int blackBoxNumber = -1;
-
-    for(int i = 0; i < blackBoxGates.size(); i++) {
-        if(blackBoxGates[i].contains(gate)) {
-            isInBlackBox = true;
-            blackBoxNumber = i;
-        }
-    }
-
-    if(isInBlackBox) {
-        int num = 0;
-        for(int i = 0; i < gates.size(); i++) {
-            if(gates[i]->toType() == GateType::CUSTOM) {
-                if(num == blackBoxNumber) {
-                    CustomGate* customGate = static_cast<CustomGate*>(gates[i]);
-                    if(isInput) {
-                        bool exitLoop = false;
-                        for(int j = 0; j < customGate->inputPointers.size(); j++) {
-                            for(int k = 0; k < customGate->inputPointers[j].size(); k++) {
-                                if(customGate->inputPointers[j][k].gate == gate) {
-                                    if(customGate->inputPointers[j][k].otherIndex == index) {
-                                        index = j;
-                                        exitLoop = true;
-                                        break;
-                                    }
-                                }
-                            }
-
-                            if(exitLoop) {
-                                break;
-                            }
-                        }
-                    } else {
-                        for(int j = 0; j < customGate->outputPointers.size(); j++) {
-                            if(customGate->outputPointers[j].gate == gate) {
-                                if(customGate->outputPointers[j].otherIndex == index) {
-                                    index = j;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                    gate = gates[i];
-                    break;
-                }
-                num++;
-            }
-        }
-    }
 
     QPoint focus = isInput ? gate->getInputLocations()[index] : gate->getOutputLocations()[index];
     focusPoint = focus;

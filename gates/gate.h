@@ -26,6 +26,8 @@ public:
     virtual void changeValue() {}
     virtual GateType toType() {}
     virtual QString toString() {}
+    virtual Gate* removeInput(int index) {}
+    virtual void removeOutput(int index) {}
 
     // this struct will be used to describe a connection to a gate's index
     struct Connection {

@@ -109,6 +109,18 @@ void Field::mouseReleaseEvent(QMouseEvent *e)
         selectGates();
 
         if(selectedGates.size() > 0) {
+            bool hasClock = false;
+            for(int i = 0; i < selectedGates.size(); i++) {
+                if(selectedGates[i]->toType() == GateType::CLOCK) {
+                    hasClock = true;
+                    break;
+                }
+            }
+
+            if(hasClock) {
+                break;
+            }
+
             // create black box window:
             BlackBoxWindow* newWindow = new BlackBoxWindow(selectedGates, selectedWires);
             newWindow->show();
@@ -248,8 +260,7 @@ void Field::placeGate(QPoint location)
     } else {
         CustomGate* newC = new CustomGate(location);
         if(newC->build(toolData + ".bb")) {
-            dflipflops.append(newC->getAllDFlipFlops());
-            clocks.append(newC->getAllClocks());
+            customGates.append(newC);
             gates.append(newC);
         }
     }
@@ -585,6 +596,7 @@ void Field::toggleInputs(QPoint point)
                 }
 
             }
+
             for(int k = 0; k < dflipflops.size(); k++) {
                 for(int j = 0; j < dflipflops.size(); j++) {
                     dflipflops[j]->update();
@@ -592,6 +604,16 @@ void Field::toggleInputs(QPoint point)
 
                 for(int j = 0; j < dflipflops.size(); j++) {
                     dflipflops[j]->change();
+                }
+            }
+
+            for(int k = 0; k < customGates.size(); k++) {
+                for(int j = 0; j < customGates.size(); j++) {
+                    customGates[j]->update();
+                }
+
+                for(int j = 0; j < customGates.size(); j++) {
+                    customGates[j]->change();
                 }
             }
 
@@ -725,6 +747,16 @@ void Field::tickClocks()
 
         for(int j = 0; j < dflipflops.size(); j++) {
             dflipflops[j]->change();
+        }
+    }
+
+    for(int k = 0; k < customGates.size(); k++) {
+        for(int j = 0; j < customGates.size(); j++) {
+            customGates[j]->update();
+        }
+
+        for(int j = 0; j < customGates.size(); j++) {
+            customGates[j]->change();
         }
     }
 

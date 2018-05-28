@@ -49,6 +49,22 @@ bool Or::addInput(Gate* newGate, int thisIndex, int otherIndex)
     return true;
 }
 
+Gate* Or::removeInput(int index)
+{
+    Gate* save = inputs[index].gate;
+    inputs[index].gate = NULL;
+    takenInputs.remove(takenInputs.indexOf(index));
+    return save;
+}
+
+void Or::removeOutput(int index)
+{
+    for(int i = 0; i < outputs[index].size(); i++) {
+        outputs[index].removeLast();
+    }
+    takenOutputs.remove(takenOutputs.indexOf(index));
+}
+
 bool Or::addOutput(Gate* newGate, int thisIndex, int otherIndex)
 {
     if(thisIndex >= numberOfOutputLines) {
@@ -61,9 +77,6 @@ bool Or::addOutput(Gate* newGate, int thisIndex, int otherIndex)
     // gates connected to a single output port
 
     takenOutputs.append(thisIndex);
-    if(newGate->toType() == GateType::CUSTOM) {
-        return true;
-    }
     Connection newConnection;
     newConnection.gate = newGate;
     newConnection.otherIndex = otherIndex;

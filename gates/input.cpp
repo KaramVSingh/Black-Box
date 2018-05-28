@@ -5,9 +5,27 @@ void Input::changeValue()
     value = -1 * (value - 1);
 }
 
+void Input::setValue(int value)
+{
+    this->value = value;
+}
+
 int Input::execute(int index)
 {
     return value;
+}
+
+Gate* Input::removeInput(int index)
+{
+    return NULL;
+}
+
+void Input::removeOutput(int index)
+{
+    for(int i = 0; i < outputs[index].size(); i++) {
+        outputs[index].removeLast();
+    }
+    takenOutputs.remove(takenOutputs.indexOf(index));
 }
 
 bool Input::addInput(Gate* newGate, int thisIndex, int otherIndex)
@@ -28,9 +46,6 @@ bool Input::addOutput(Gate* newGate, int thisIndex, int otherIndex)
     // gates connected to a single output port
 
     takenOutputs.append(thisIndex);
-    if(newGate->toType() == GateType::CUSTOM) {
-        return true;
-    }
     Connection newConnection;
     newConnection.gate = newGate;
     newConnection.otherIndex = otherIndex;

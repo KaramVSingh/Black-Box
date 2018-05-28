@@ -64,6 +64,7 @@ private:
 
     QVector<Gate*> gates;
     QVector<DFlipFlop*> dflipflops;
+    QVector<CustomGate*> customGates;
     QVector<Clock*> clocks;
     QVector<Input*> inputGates;
     QVector<Output*> outputGates;

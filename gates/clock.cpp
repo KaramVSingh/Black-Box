@@ -10,6 +10,19 @@ int Clock::execute(int index)
     return value;
 }
 
+Gate* Clock::removeInput(int index)
+{
+    return NULL;
+}
+
+void Clock::removeOutput(int index)
+{
+    for(int i = 0; i < outputs[index].size(); i++) {
+        outputs[index].removeLast();
+    }
+    takenOutputs.remove(takenOutputs.indexOf(index));
+}
+
 bool Clock::addInput(Gate* newGate, int thisIndex, int otherIndex)
 {
     qDebug() << "adding input to CLOCK gate is illegal";
@@ -28,9 +41,6 @@ bool Clock::addOutput(Gate* newGate, int thisIndex, int otherIndex)
     // gates connected to a single output port
 
     takenOutputs.append(thisIndex);
-    if(newGate->toType() == GateType::CUSTOM) {
-        return true;
-    }
     Connection newConnection;
     newConnection.gate = newGate;
     newConnection.otherIndex = otherIndex;

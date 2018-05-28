@@ -17,6 +17,8 @@ public:
     void changeValue() {}
     GateType toType();
     QString toString();
+    Gate* removeInput(int index);
+    void removeOutput(int index);
 };
 
 #endif // OR_H

@@ -1,5 +1,26 @@
 #include "dflipflop.h"
 
+void DFlipFlop::setState(int state)
+{
+    this->state = state;
+}
+
+Gate* DFlipFlop::removeInput(int index)
+{
+    Gate* save = inputs[index].gate;
+    inputs[index].gate = NULL;
+    takenInputs.remove(takenInputs.indexOf(index));
+    return save;
+}
+
+void DFlipFlop::removeOutput(int index)
+{
+    for(int i = 0; i < outputs[index].size(); i++) {
+        outputs[index].removeLast();
+    }
+    takenOutputs.remove(takenOutputs.indexOf(index));
+}
+
 void DFlipFlop::update()
 {
     if(takenInputs.size() != 2) {
@@ -69,12 +90,9 @@ bool DFlipFlop::addOutput(Gate* newGate, int thisIndex, int otherIndex)
         return false;
     }
 
-    // we dont care if taken outputs containts this becasue a single gate can have multiple
-    // gates connected to a single output port
 
-    takenOutputs.append(thisIndex);
-    if(newGate->toType() == GateType::CUSTOM) {
-        return true;
+    if(!takenOutputs.contains(thisIndex)) {
+        takenOutputs.append(thisIndex);
     }
     Connection newConnection;
     newConnection.gate = newGate;

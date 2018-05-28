@@ -56,9 +56,6 @@ bool Encoder::addOutput(Gate* newGate, int thisIndex, int otherIndex)
     // gates connected to a single output port
 
     takenOutputs.append(thisIndex);
-    if(newGate->toType() == GateType::CUSTOM) {
-        return true;
-    }
     Connection newConnection;
     newConnection.gate = newGate;
     newConnection.otherIndex = otherIndex;
@@ -70,6 +67,22 @@ bool Encoder::addOutput(Gate* newGate, int thisIndex, int otherIndex)
 void Encoder::changeLocation(QPoint newLocation)
 {
     this->location = newLocation;
+}
+
+Gate* Encoder::removeInput(int index)
+{
+    Gate* save = inputs[index].gate;
+    inputs[index].gate = NULL;
+    takenInputs.remove(takenInputs.indexOf(index));
+    return save;
+}
+
+void Encoder::removeOutput(int index)
+{
+    for(int i = 0; i < outputs[index].size(); i++) {
+        outputs[index].removeLast();
+    }
+    takenOutputs.remove(takenOutputs.indexOf(index));
 }
 
 QImage Encoder::toImage(float zoom)
