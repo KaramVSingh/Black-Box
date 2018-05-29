@@ -2,6 +2,7 @@
 
 void CustomGate::setState(int state)
 {
+    this->nextState = state;
     this->state = state;
 }
 
@@ -100,7 +101,6 @@ void CustomGate::update()
         nextState += content[contentIndex].digitValue() * pow(2, i);
         contentIndex++;
     }
-
 
     return;
 }
@@ -351,6 +351,9 @@ int CustomGate::execute(int index)
     }
 
     // CHANGES WILL HAVE TO BE MADE HERE TOO
+    // this presents another bug as well, if a clock input is triggered, it
+    // internally sets that to 0. maybe thats not an issue but in specific scenarios
+    // this will definitely create issues
     for(int i = 0; i < triggeredPorts.size(); i++) {
         refinedResult[triggeredPorts[i]] = 0;
     }

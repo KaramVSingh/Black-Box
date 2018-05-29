@@ -677,6 +677,13 @@ QString BlackBoxWindow::execute()
             // we need to set the state of the system, that means setting the state of all
             // of the custom gates and all of the dflipflops and all of the custom gates
             // we also need to set all of the inputs properly:
+
+            for(int i = 0; i < customGates.size(); i++) {
+                for(int j = 0; j < customGates[i]->clkVals.size(); j++) {
+                    customGates[i]->clkVals[j] = 0;
+                }
+            }
+
             int tempInputValue = inputValue;
             for(int i = 0; i < testInputs.size(); i++) {
                 testInputs[i]->setValue(tempInputValue % 2);
@@ -736,6 +743,7 @@ QString BlackBoxWindow::execute()
                 newState += customGates[i]->state << shift;
                 shift += floor(log2(customGates[i]->numberOfStates));
             }
+
 
             if(floor(log2(numberOfStates)) == 0) {
                 gateDefinition += "0|";
